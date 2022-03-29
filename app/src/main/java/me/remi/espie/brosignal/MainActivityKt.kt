@@ -17,10 +17,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import com.google.gson.Gson
 import java.io.File
-import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivityKt : AppCompatActivity() {
     private val smsManager: SmsManager = SmsManager.getDefault()
     private val gson = Gson()
 
@@ -61,8 +60,8 @@ class MainActivity : AppCompatActivity() {
         } else println("not a file")
     }
 
-    private fun readJSONfromFile(): Array<User> {
-        var userArray = arrayOf<User>()
+    private fun readJSONfromFile(): Array<UserKt> {
+        var userArray = arrayOf<UserKt>()
         val fileName = File(applicationContext.filesDir.absolutePath + "/bros.json")
         //Toast.makeText(this, "Loadé", Toast.LENGTH_LONG).show()
         //fileName.delete()
@@ -71,27 +70,27 @@ class MainActivity : AppCompatActivity() {
             if (size != 0L) {
                 fileName.forEachLine {
                     //println(it)
-                    val user: User = gson.fromJson(it, User::class.java)
-                    userArray = userArray.plusElement(user)
+                    val userKt: UserKt = gson.fromJson(it, UserKt::class.java)
+                    userArray = userArray.plusElement(userKt)
                 }
             } else println("empty file")
         } else println("not a file")
         return userArray
     }
 
-    private fun addToDrawer(user: User) {
+    private fun addToDrawer(userKt: UserKt) {
         val drawer = findViewById<View>(R.id.broList) as LinearLayout
 
         val thumbnail = ImageView(this)
-        if (user.contactThumbnails != "") {
-            thumbnail.setImageURI(Uri.parse(user.contactThumbnails))
+        if (userKt.contactThumbnails != "") {
+            thumbnail.setImageURI(Uri.parse(userKt.contactThumbnails))
         } else {
             thumbnail.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_person_24))
         }
         val contactName = TextView(this)
-        contactName.text = user.contactName
+        contactName.text = userKt.contactName
         val contactNumber = TextView(this)
-        contactNumber.text = user.contactNumber
+        contactNumber.text = userKt.contactNumber
         val contactBin = ImageView(this)
         contactBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24))
         contactBin.setColorFilter(resources.getColor(R.color.design_default_color_error), PorterDuff.Mode.SRC_IN);
@@ -113,22 +112,22 @@ class MainActivity : AppCompatActivity() {
         drawer.addView(horizontalLayout)
 
         contactBin.setOnClickListener {
-            removeJSONfromFile(applicationContext.filesDir.absolutePath + "/bros.json", user.contactID)
-            this@MainActivity.runOnUiThread(java.lang.Runnable {
+            removeJSONfromFile(applicationContext.filesDir.absolutePath + "/bros.json", userKt.contactID)
+            this@MainActivityKt.runOnUiThread(java.lang.Runnable {
                 drawer.removeView(horizontalLayout)
             })
         }
     }
 
-    private fun writeJSONtoFile(filePath: String, user: User) {
+    private fun writeJSONtoFile(filePath: String, userKt: UserKt) {
         val file = File(filePath)
-        val jsonString: String = gson.toJson(user)
+        val jsonString: String = gson.toJson(userKt)
         if (file.length() == 0L) file.writeText(jsonString)
         else file.appendText("\n" + jsonString)
     }
 
     private fun removeJSONfromFile(filePath: String, userId: String?){
-        var userArray = arrayOf<User>()
+        var userArray = arrayOf<UserKt>()
         val fileName = File(filePath)
         //Toast.makeText(this, "Loadé", Toast.LENGTH_LONG).show()
         //fileName.delete()
@@ -136,8 +135,8 @@ class MainActivity : AppCompatActivity() {
             val size: Long = fileName.length()
             if (size != 0L) {
                 fileName.forEachLine {
-                    val user: User = gson.fromJson(it, User::class.java)
-                    if (user.contactID != userId) userArray = userArray.plusElement(user)
+                    val userKt: UserKt = gson.fromJson(it, UserKt::class.java)
+                    if (userKt.contactID != userId) userArray = userArray.plusElement(userKt)
                 }
                 fileName.delete()
                 userArray.forEach {
@@ -227,15 +226,15 @@ class MainActivity : AppCompatActivity() {
                                 cursor2.getString(cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                         }
 
-                        val user: User = if (contactThumbnails != null) {
-                            User(
+                        val userKt: UserKt = if (contactThumbnails != null) {
+                            UserKt(
                                 contactID,
                                 contactName,
                                 contactThumbnails,
                                 contactNumber
                             )
                         } else {
-                            User(
+                            UserKt(
                                 contactID,
                                 contactName,
                                 "",
@@ -250,8 +249,8 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
-                        addToDrawer(user)
-                        writeJSONtoFile(applicationContext.filesDir.absolutePath + "/bros.json", user)
+                        addToDrawer(userKt)
+                        writeJSONtoFile(applicationContext.filesDir.absolutePath + "/bros.json", userKt)
                         cursor2.close()
                     }
                     cursor1.close()
@@ -288,7 +287,7 @@ class MainActivity : AppCompatActivity() {
 
         Thread {
             Thread.sleep(2000)
-            this@MainActivity.runOnUiThread(java.lang.Runnable {
+            this@MainActivityKt.runOnUiThread(java.lang.Runnable {
                 callBros.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.brosignal))
             })
         }.start()

@@ -3,7 +3,7 @@ package me.remi.espie.brosignal
 import android.net.Uri
 import com.google.gson.Gson
 
-class User {
+class UserKt {
     var contactID: String? = null
     var contactName: String? = null
     var contactThumbnails: String? = null
