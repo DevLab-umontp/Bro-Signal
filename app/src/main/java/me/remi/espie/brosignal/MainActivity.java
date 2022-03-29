@@ -4,12 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -17,7 +23,6 @@ import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -35,8 +40,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SmsManager smsManager = SmsManager.getDefault();
-    private Gson gson = new Gson();
+    private final SmsManager smsManager = SmsManager.getDefault();
+    private final Gson gson = new Gson();
+    private boolean sendDelay = false;
+    private TransitionDrawable transitionSignal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,16 @@ public class MainActivity extends AppCompatActivity {
                 saveBroName(editable.toString());
             }
         });
+        findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
+        findViewById(R.id.addBroButton).setOnClickListener(view -> addBro());
+
+
+        BitmapDrawable[] drawables = new BitmapDrawable[2];
+        drawables[0] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal, null));
+        drawables[1] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal_color, null));
+        transitionSignal = new TransitionDrawable(drawables);
+        ImageView callbros = findViewById(R.id.callBros);
+        callbros.setImageDrawable(transitionSignal);
     }
 
     private void deleteFile() {
@@ -88,7 +105,12 @@ public class MainActivity extends AppCompatActivity {
         TextView broName = findViewById(R.id.broName);
         if (broname.isFile()) {
             if (broname.length() != 0L) {
-                broName.setText(broname.toString());
+                try {
+                    BufferedReader reader = new BufferedReader(new FileReader(broname.getAbsolutePath()));
+                    broName.setText(reader.readLine());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else System.out.println("empty file");
         } else System.out.println("not a file");
     }
@@ -101,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         if (fileName.isFile()) {
             long size = fileName.length();
             if (size != 0L) {
-                BufferedReader reader = null;
+                BufferedReader reader;
                 try {
                     reader = new BufferedReader(new FileReader(fileName.getAbsolutePath()));
                     String line = reader.readLine();
@@ -110,11 +132,9 @@ public class MainActivity extends AppCompatActivity {
                         userArray.add(user);
                         line = reader.readLine();
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             } else System.out.println("empty file");
         } else System.out.println("not a file");
         return userArray;
@@ -124,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout drawer = findViewById(R.id.broList);
 
         ImageView thumbnail = new ImageView(this);
-        if (user.getContactThumbnails() != "") {
+        if (!user.getContactThumbnails().equals("")) {
             thumbnail.setImageURI(Uri.parse(user.getContactThumbnails()));
         } else {
             thumbnail.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_person_24));
@@ -162,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     private void writeJSONtoFile(String filePath, User user) {
         File file = new File(filePath);
         String jsonString = gson.toJson(user);
-        FileWriter out = null;
+        FileWriter out;
         if (file.length() == 0L) {
             try {
                 out = new FileWriter(file);
@@ -190,13 +210,13 @@ public class MainActivity extends AppCompatActivity {
         if (fileName.isFile()) {
             long size = fileName.length();
             if (size != 0L) {
-                BufferedReader reader = null;
+                BufferedReader reader;
                 try {
                     reader = new BufferedReader(new FileReader(fileName.getAbsolutePath()));
                     String line = reader.readLine();
                     while (line != null) {
                         User user = gson.fromJson(line, User.class);
-                        if (user.getContactID() != userId) userArray.add(user);
+                        if (!user.getContactID().equals(userId)) userArray.add(user);
                         line = reader.readLine();
                     }
 
@@ -259,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == 2) {
                 Uri contentData = data.getData();
-                Cursor phoneNumber = null;
+                Cursor phoneNumber;
                 Cursor contactData = getContentResolver().query(contentData, null, null, null, null);
                 if (contactData.moveToFirst()) {
                     String contactID = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts._ID));
@@ -279,11 +299,11 @@ public class MainActivity extends AppCompatActivity {
 
                         String contactNumber = "";
 
-                        while (phoneNumber.moveToNext()){
+                        while (phoneNumber.moveToNext()) {
                             contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         }
 
-                        User user = null;
+                        User user;
                         if (contactThumbnails != null)
                             user = new User(
                                     contactID,
@@ -320,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void launchBroSignal(View view) {
+    private void launchBroSignal() {
         if (!checkSMSPerm()) requestSMSPerm();
         else {
             sendBroSignal();
@@ -328,45 +348,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendBroSignal() {
-        ImageView callBros = findViewById(R.id.callBros);
-        callBros.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.brosignal_color));
-        callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
-                .withEndAction(() -> {
-                    callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f);
-                });
+        if (!sendDelay) {
+            sendDelay = true;
+            ImageView callBros = findViewById(R.id.callBros);
+            transitionSignal.startTransition(10);
+            callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
+                    .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
 
-        new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                    runOnUiThread(() -> callBros.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.brosignal)));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            new Thread() {
+                public void run() {
+                    try {
+                        Thread.sleep(750);
+                        //runOnUiThread(() -> callBros.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.brosignal)));
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    transitionSignal.reverseTransition(150);
+                    sendDelay = false;
+                }
+            }.start();
+
+            TextView broName = findViewById(R.id.broName);
+            String messageText = "BRO !! ";
+            if (broName.getText().
+
+                    length() == 0) messageText += "Ton BRO anonyme a besoin d'aide !";
+            else messageText += "Ton BRO " + broName.getText() + " a besoin d'aide !";
+
+            List<User> userArray = readJSONfromFile();
+            if (userArray.isEmpty())
+                Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).show();
+            else {
+                for (User u : userArray) {
+                    smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
                 }
             }
-        };
-
-        TextView broName = findViewById(R.id.broName);
-        String messageText = "BRO !! ";
-        if (broName.getText().
-
-                length() == 0) messageText += "Ton BRO anonyme a besoin d'aide !";
-        else messageText += "Ton BRO " + broName.getText() + " a besoin d'aide !";
-
-        List<User> userArray = readJSONfromFile();
-        if (userArray.isEmpty())
-            Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).
-
-                    show();
-        else {
-            for (User u : userArray) {
-                smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
-            }
         }
-
     }
 
-    private void addBro(View view) {
+    private void addBro() {
         if (checkContactPerm()) {
             pickContact();
         } else {

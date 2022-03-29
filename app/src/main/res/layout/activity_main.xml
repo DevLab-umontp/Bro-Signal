@@ -24,8 +24,7 @@
             android:layout_weight="1"
             android:background="#FF0000"
             android:fontFamily="sans-serif-condensed"
-            android:onClick="addBro"
-            android:text="Ajouter un BRO"
+            android:text="@string/ajouter_un_bro"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="#FFFFFF"
             app:backgroundTint="#FF0000" />
@@ -51,7 +50,7 @@
             android:layout_weight="1"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center"
-            android:text="Votre nom de BRO :"
+            android:text="@string/votre_nom_de_bro"
             android:textSize="16sp" />
 
         <EditText
@@ -59,11 +58,14 @@
             android:layout_width="match_parent"
             android:layout_height="325dp"
             android:layout_weight="1"
+            android:autofillHints=""
             android:ems="10"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center"
+            android:hint="@string/broname"
             android:inputType="textPersonName"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
 
         <Space
             android:layout_width="match_parent"
@@ -75,8 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="475dp"
             android:layout_weight="1"
-            android:contentDescription="BRO Signal"
-            android:onClick="launchBroSignal"
+            android:contentDescription="@string/bro_signal"
             app:srcCompat="@drawable/brosignal" />
 
         <LinearLayout
