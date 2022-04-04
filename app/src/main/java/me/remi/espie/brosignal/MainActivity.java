@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //deleteFile();
         setBroName();
 
         for (User u : readJSONfromFile()) {
@@ -85,8 +86,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteFile() {
-        getApplicationContext().deleteFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/broname.txt");
-        getApplicationContext().deleteFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json");
+        File broname = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/broname.txt");
+        broname.delete();
+        File brolist = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json");
+        brolist.delete();
     }
 
     private void saveBroName(String text) {
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         contactBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
         contactBin.setColorFilter(getResources().getColor(R.color.design_default_color_error), PorterDuff.Mode.SRC_IN);
         contactBin.setOnClickListener(view -> {
-            removeUserFromFile(MainActivity.this.getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json", user.getContactID());
+            removeUserFromFile(user.getContactID());
             runOnUiThread(() -> drawer.removeView(horizontalLayout));
         });
 
@@ -182,18 +185,19 @@ public class MainActivity extends AppCompatActivity {
         drawer.addView(horizontalLayout);
     }
 
-    private void writeUserToFile(String filePath, User user) {
+    private void writeUserToFile(User user) {
         String jsonString = gson.toJson(user);
-        writeToFile(filePath, jsonString);
+        writeToFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json", jsonString);
     }
 
-    private void writeUserArrayToFile(String filePath, List<User> userArray){
+    private void writeUserArrayToFile(List<User> userArray){
         StringBuilder jsonString = new StringBuilder();
         for (User u: userArray) {
+            jsonString.append('\n');
             jsonString.append(gson.toJson(u));
-            jsonString.append("\n");
         }
-        writeToFile(filePath, jsonString.toString());
+        jsonString.delete(0,1);
+        writeToFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json", jsonString.toString());
     }
 
     private void writeToFile(String filePath, String text){
@@ -210,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             try {
                 out = new FileWriter(file, true);
-                out.write(text);
+                out.write("\n" + text);
                 out.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -218,9 +222,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void removeUserFromFile(String filePath, String userId) {
+    private void removeUserFromFile(String userId) {
         List<User> userArray = new ArrayList<>();
-        File fileName = new File(filePath);
+        File fileName = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json");
         if (fileName.isFile()) {
             long size = fileName.length();
             if (size != 0L) {
@@ -239,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 fileName.delete();
-                writeUserArrayToFile(filePath, userArray);
+                writeUserArrayToFile(userArray);
             } else System.out.println("empty file");
         } else System.out.println("not a file");
     }
@@ -395,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
                         );
 
                         //add user to view and to file
-                        writeUserToFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json", user);
+                        writeUserToFile( user);
                         addToDrawer(user);
 
                         //close data

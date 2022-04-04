@@ -4,4 +4,5 @@
     <string name="broname">Quel est votre nom de BRO ?</string>
     <string name="ajouter_un_bro">Ajouter un BRO</string>
     <string name="votre_nom_de_bro">Votre nom de BRO :</string>
+    <string name="brolist">Liste des BROs</string>
 </resources>
