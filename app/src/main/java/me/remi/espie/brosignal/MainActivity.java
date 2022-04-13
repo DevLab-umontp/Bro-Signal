@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -19,9 +20,13 @@ import android.provider.ContactsContract;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,18 +46,22 @@ public class MainActivity extends AppCompatActivity {
     private final Gson gson = new Gson();
     private boolean sendDelay = false;
     private TransitionDrawable transitionSignal;
+    private ArrayList<UserGroup> userGroups = new ArrayList<>();
+    private int selectedGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //deleteFile();
+        deleteFile();
         setBroName();
-
-        for (User u : readJSONfromFile()) {
-            addToDrawer(u);
+        readJSONfromFile();
+        if (userGroups.isEmpty()) userGroups.add(new UserGroup("Mes BROs", "Tous mes BROs réunis", Color.BLACK));
+        for (UserGroup u : userGroups) {
+            addUserGroupsToDrawer(u);
         }
+        selectedGroup = 0;
 
         //create bro-sognal button transition
         BitmapDrawable[] drawables = new BitmapDrawable[2];
@@ -118,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
         } else System.out.println("not a file");
     }
 
-    private List<User> readJSONfromFile() {
-        List<User> userArray = new ArrayList<>();
+    private void readJSONfromFile() {
         File fileName = new File(getApplicationContext().getFilesDir().getAbsoluteFile() + "/bros.json");
 
         if (fileName.isFile()) {
@@ -130,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
                     reader = new BufferedReader(new FileReader(fileName.getAbsolutePath()));
                     String line = reader.readLine();
                     while (line != null) {
-                        User user = gson.fromJson(line, User.class);
-                        userArray.add(user);
+                        UserGroup userGroup = gson.fromJson(line, UserGroup.class);
+                        userGroups.add(userGroup);
                         line = reader.readLine();
                     }
                 } catch (Exception e) {
@@ -139,13 +147,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else System.out.println("empty file");
         } else System.out.println("not a file");
-        return userArray;
     }
 
-    private void addToDrawer(User user) {
-        //find and create layouts
-        LinearLayout drawer = findViewById(R.id.broList);
-
+    private void addToDrawer(User user, LinearLayout drawer) {
+        //create layouts
         LinearLayout horizontalLayout = new LinearLayout(this);
         horizontalLayout.setOrientation(LinearLayout.HORIZONTAL);
         horizontalLayout.setGravity(Gravity.CENTER_VERTICAL);
@@ -183,6 +188,114 @@ public class MainActivity extends AppCompatActivity {
         horizontalLayout.addView(contactBin);
 
         drawer.addView(horizontalLayout);
+    }
+
+    private void addUserGroupsToDrawer(UserGroup u){
+        LinearLayout drawer = findViewById(R.id.groupList);
+
+        ScrollView verticalScroll = new ScrollView(this);
+        verticalScroll.canScrollVertically(1);
+        verticalScroll.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.9f
+        ));
+
+        LinearLayout horizontalLayout = new LinearLayout(this);
+        horizontalLayout.setOrientation(LinearLayout.HORIZONTAL);
+        horizontalLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.1f
+        ));
+
+        LinearLayout verticalLayout = new LinearLayout(this);
+        verticalLayout.setOrientation(LinearLayout.VERTICAL);
+        verticalLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1f
+        ));
+
+        LinearLayout verticalLayoutTitle = new LinearLayout(this);
+        verticalLayoutTitle.setOrientation(LinearLayout.VERTICAL);
+        verticalLayoutTitle.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1f
+        ));
+
+        LinearLayout verticalLayoutScroll = new LinearLayout(this);
+        verticalLayoutScroll.setOrientation(LinearLayout.VERTICAL);
+
+
+        //set group data
+        int groupColor = u.getColor();
+        TextView groupName = new TextView(this);
+        groupName.setText(u.getName());
+        groupName.setTextColor(groupColor);
+        groupName.setGravity(Gravity.CENTER_HORIZONTAL);
+        groupName.setTextSize(20);
+        groupName.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+
+        TextView groupDescription = new TextView(this);
+        groupDescription.setText(u.getDescription());
+        groupDescription.setTextSize(14);
+        groupDescription.setGravity(Gravity.CENTER_HORIZONTAL);
+        groupDescription.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+
+        //add delete bin next to contact
+        ImageView groupBin = new ImageView(this);
+        groupBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
+        groupBin.setColorFilter(getResources().getColor(R.color.design_default_color_error), PorterDuff.Mode.SRC_IN);
+        groupBin.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1f
+        ));
+        groupBin.setOnClickListener(view -> {
+            runOnUiThread(() -> drawer.removeView(horizontalLayout));
+        });
+
+        ImageView groupPlus = new ImageView(this);
+        groupPlus.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_action_add));
+        groupPlus.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
+        groupPlus.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1f
+        ));
+        groupPlus.setOnClickListener(view -> {
+            addUserGroupsToDrawer(new UserGroup("test", "test", Color.RED));
+        });
+
+        //add data to drawer
+
+        verticalLayoutTitle.addView(groupName);
+        verticalLayoutTitle.addView(groupDescription);
+
+        horizontalLayout.addView(groupBin);
+        horizontalLayout.addView(verticalLayoutTitle);
+        horizontalLayout.addView(groupPlus);
+
+
+        verticalLayout.addView(horizontalLayout);
+        verticalScroll.addView(verticalLayoutScroll);
+        verticalLayout.addView(verticalScroll);
+
+        for (User user: u.getUserList()) {
+            addToDrawer(user, verticalLayoutScroll);
+        }
+
+        drawer.addView(verticalLayout);
     }
 
     private void writeUserToFile(User user) {
@@ -248,6 +361,10 @@ public class MainActivity extends AppCompatActivity {
         } else System.out.println("not a file");
     }
 
+
+
+
+
     private boolean checkContactPerm() {
         return ContextCompat.checkSelfPermission(
                 this,
@@ -309,11 +426,17 @@ public class MainActivity extends AppCompatActivity {
                     length() == 0) messageText += "Ton BRO anonyme a besoin d'aide !";
             else messageText += "Ton BRO " + broName.getText() + " a besoin d'aide !";
 
-            List<User> userArray = readJSONfromFile();
-            if (!userArray.isEmpty())
-                for (User u : userArray) {
-                    smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
+            readJSONfromFile();
+            if (!userGroups.isEmpty()) {
+                if (userGroups.size() > selectedGroup) {
+                    if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
+                        for (User u : userGroups.get(selectedGroup).getUserList()) {
+                            smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
+                        }
+                    }
                 }
+            }
+
             else {
                 Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).show();
             }
@@ -359,10 +482,17 @@ public class MainActivity extends AppCompatActivity {
                     int idResultHold = Integer.parseInt(idResult);
 
                     //check if user already exists
-                    for (User u : readJSONfromFile()) {
-                        if (u.getContactID().equals(contactID)) {
-                            Toast.makeText(this, "BRO déjà enregistré", Toast.LENGTH_LONG).show();
-                            return;
+                    readJSONfromFile();
+                    if (!userGroups.isEmpty()) {
+                        if (userGroups.size() > selectedGroup) {
+                            if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
+                                for (User u : userGroups.get(selectedGroup).getUserList()) {
+                                    if (u.getContactID().equals(contactID)) {
+                                        Toast.makeText(this, "BRO déjà enregistré", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -399,8 +529,12 @@ public class MainActivity extends AppCompatActivity {
                         );
 
                         //add user to view and to file
-                        writeUserToFile( user);
-                        addToDrawer(user);
+                        writeUserToFile(user);
+                        LinearLayout grouplist = findViewById(R.id.groupList);
+                        LinearLayout grouplist2 = (LinearLayout) grouplist.getChildAt(selectedGroup);
+                        ScrollView grouplist3 = (ScrollView) grouplist2.getChildAt(1);
+
+                        addToDrawer(user, (LinearLayout) grouplist3.getChildAt(0));
 
                         //close data
                         phoneNumber.close();

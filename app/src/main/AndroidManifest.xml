@@ -10,8 +10,11 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/brosignal"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BroSignal">
-        <activity android:name="me.remi.espie.brosignal.MainActivity">
+        android:theme="@style/Theme.BroSignal"
+        android:launchMode="singleTask">
+        <activity
+            android:name="me.remi.espie.brosignal.MainActivity"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

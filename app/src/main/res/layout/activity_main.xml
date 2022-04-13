@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_weight="1"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -14,7 +15,7 @@
         android:id="@+id/mainBro"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.9"
+        android:layout_weight="0.4"
         android:orientation="vertical">
 
 
@@ -50,21 +51,13 @@
             android:contentDescription="@string/bro_signal"
             app:srcCompat="@drawable/brosignal" />
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="0.5"
-            android:contentDescription="@string/brolist">
-
-            <LinearLayout
-                android:id="@+id/broList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </ScrollView>
-
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/groupList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4"/>
 
     <LinearLayout
         android:id="@+id/fullscreen_content_controls"
