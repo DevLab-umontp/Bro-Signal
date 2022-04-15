@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Bro Signal</string>
     <string name="bro_signal">BRO Signal</string>
-    <string name="broname">Quel est votre nom de BRO ?</string>
+    <string name="broname">Quel est ton nom de BRO ?</string>
     <string name="ajouter_un_bro">Ajouter un BRO</string>
-    <string name="votre_nom_de_bro">Votre nom de BRO :</string>
+    <string name="votre_nom_de_bro">Ton nom de BRO :</string>
     <string name="brolist">Liste des BROs</string>
+    <string name="send_custom_message">Envoyer un message personnalisé :</string>
+    <string name="custom_message_text">BRO ! Ton BRO <font color='#01C6DB'>$nom</font> a besoin d\'aide !</string>
+    <string name="custom_message_helper">Utilise <font color='#01C6DB'>$nom</font> pour ajouter ton nom de BRO au message ! (ou tape le, comme tu veux !)</string>
 </resources>

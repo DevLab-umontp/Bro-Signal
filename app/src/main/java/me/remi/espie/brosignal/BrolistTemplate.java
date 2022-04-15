@@ -1,0 +1,260 @@
+package me.remi.espie.brosignal;
+
+import static android.app.Activity.RESULT_OK;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.net.Uri;
+import android.os.Bundle;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.gridlayout.widget.GridLayout;
+
+import android.provider.ContactsContract;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class BrolistTemplate extends Fragment {
+
+    private UserGroup userGroup;
+    private View view;
+    private int dp1;
+
+    public UserGroup getUserGroup() {
+        return userGroup;
+    }
+
+    public void setUserGroup(UserGroup userGroup) {
+        this.userGroup = userGroup;
+    }
+
+    public BrolistTemplate(UserGroup userGroup) {
+        this.userGroup = userGroup;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        // Inflate the layout for this fragment
+        view = inflater.inflate(R.layout.fragment_brolist_template, container, false);
+
+        Button broButton = view.findViewById(R.id.addBroButton);
+        TextView broDesc = view.findViewById(R.id.broDesc);
+        if (userGroup !=null) {
+            broButton.setBackgroundColor(userGroup.getColor());
+            broButton.setTextColor(getContrastColor(userGroup.getColor()));
+            broDesc.setText(userGroup.getDescription());
+        }
+
+        broButton.setOnClickListener(view1 -> addBro(view));
+
+        for (User u: userGroup.getUserList()) {
+            addToDrawer(u);
+        }
+
+        dp1 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                view.getResources().getDisplayMetrics());
+
+        Log.i("dp1", String.valueOf(dp1));
+        return view;
+    }
+
+    private void addToDrawer(User user) {
+        GridLayout brolist = view.findViewById(R.id.brolist);
+        //create layout
+        LinearLayout verticalLayout = new LinearLayout(getContext());
+        verticalLayout.setOrientation(LinearLayout.VERTICAL);
+        verticalLayout.setBackgroundColor(Color.WHITE);
+        LinearLayout.LayoutParams verticalParams = new LinearLayout.LayoutParams(
+                300,
+                300,
+                1f
+        );
+        verticalParams.setMargins(25, 25, 25, 25);
+        verticalLayout.setLayoutParams(verticalParams);
+        verticalLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+
+        //set contact thumbnail
+        ImageView thumbnail = new ImageView(getContext());
+        if (!user.getContactThumbnails().equals("")) {
+            thumbnail.setImageURI(Uri.parse(user.getContactThumbnails()));
+        } else {
+            thumbnail.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_person_24));
+            thumbnail.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+        }
+        thumbnail.setBackgroundColor(Color.LTGRAY);
+        thumbnail.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.2f
+        ));
+
+        //set other contact data
+        TextView contactName = new TextView(getContext());
+        contactName.setText(user.getContactName());
+        contactName.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.1f
+        ));
+        contactName.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        TextView contactNumber = new TextView(getContext());
+        contactNumber.setText(user.getContactNumber());
+        contactNumber.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.1f
+        ));
+        contactNumber.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        //add delete bin next to contact
+        ImageView contactBin = new ImageView(getContext());
+        contactBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
+        contactBin.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+        contactBin.setOnClickListener(view -> {
+            userGroup.removeUser(user);
+            brolist.removeView(verticalLayout);
+        });
+        contactBin.setBackgroundColor(Color.RED);
+        contactBin.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.1f
+        ));
+
+        //add data to drawer
+        verticalLayout.addView(thumbnail);
+        verticalLayout.addView(contactName);
+        verticalLayout.addView(contactNumber);
+        verticalLayout.addView(contactBin);
+
+        brolist.addView(verticalLayout);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 2) {
+                Uri contentData = data.getData();
+                Cursor phoneNumber;
+                Cursor contactData = getContext().getContentResolver().query(contentData, null, null, null, null);
+                if (contactData.moveToFirst()) {
+                    //if contact data exists, create new contact
+                    String contactID = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts._ID));
+                    String contactName = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String contactThumbnails = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
+                    String idResult = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                    int idResultHold = Integer.parseInt(idResult);
+
+                    //check if user already exists
+                    //readUserGroups();
+                            if (!userGroup.getUserList().isEmpty()) {
+                                for (User u : userGroup.getUserList()) {
+                                    if (u.getContactID().equals(contactID)) {
+                                        Toast.makeText(getActivity(), "BRO déjà enregistré", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                }
+                            }
+
+                            if (idResultHold == 1) {
+                                phoneNumber = getContext().getContentResolver().query(
+                                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                        null,
+                                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
+                                        null,
+                                        null
+                                );
+
+                                String contactNumber = "";
+
+                                //get last phoneNumber
+                                while (phoneNumber.moveToNext()) {
+                                    contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                }
+
+                                //create user depending of thumbnail presence
+                                User user;
+                                if (contactThumbnails != null)
+                                    user = new User(
+                                            contactID,
+                                            contactName,
+                                            contactThumbnails,
+                                            contactNumber
+                                    );
+                                else user = new User(
+                                        contactID,
+                                        contactName,
+                                        "",
+                                        contactNumber
+                                );
+
+                                //add user to view and to file
+                                //writeUserToFile(user);
+                                userGroup.addUser(user);
+                                addToDrawer(user);
+
+                                //close data
+                                phoneNumber.close();
+
+                    }
+                    contactData.close();
+                }
+
+            }
+        } else {
+            Toast.makeText(getActivity(), "Veuillez sélectionner un BRO", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean checkContactPerm(View view) {
+        return ContextCompat.checkSelfPermission(
+                view.getContext(),
+                android.Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestContactPerm() {
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, 5);
+    }
+
+    private void pickContact() {
+        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(intent, 2);
+    }
+
+    private void addBro(View view) {
+        if (checkContactPerm(view)) {
+            pickContact();
+        } else {
+            requestContactPerm();
+        }
+    }
+
+    private int getContrastColor(int color) {
+        double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000;
+        return y >= 128 ? Color.BLACK : Color.WHITE;
+    }
+
+}

@@ -2,9 +2,12 @@ package me.remi.espie.brosignal;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
 import android.content.Intent;
@@ -22,14 +25,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -47,21 +50,49 @@ public class MainActivity extends AppCompatActivity {
     private boolean sendDelay = false;
     private TransitionDrawable transitionSignal;
     private ArrayList<UserGroup> userGroups = new ArrayList<>();
-    private int selectedGroup;
+    private TabLayout tabLayout;
+    private ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
-        deleteFile();
-        setBroName();
-        readJSONfromFile();
-        if (userGroups.isEmpty()) userGroups.add(new UserGroup("Mes BROs", "Tous mes BROs réunis", Color.BLACK));
-        for (UserGroup u : userGroups) {
-            addUserGroupsToDrawer(u);
+        //deleteFile();
+        readUserGroups();
+
+        tabLayout = findViewById(R.id.groupName);
+        ViewPager2 viewPager2 = findViewById(R.id.groupList);
+        adapter = new ViewPagerAdapter(this);
+        viewPager2.setAdapter(adapter);
+
+        new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> tab.setText("BRO")).attach();
+
+        Fragment setting = new Settings();
+        adapter.addFragment(0, setting);
+
+//        userGroups.add(new UserGroup("Mes BROs", "Tous mes BROs réunis", Color.BLUE));
+//        userGroups.add(new UserGroup("Bro 2", "test test", Color.LTGRAY));
+//        userGroups.add(new UserGroup("test", "YES", Color.GREEN));
+
+        if (userGroups.isEmpty()) {
+            userGroups.add(new UserGroup("BRO 1", "Tous mes BROs réunis !", Color.RED));
+            userGroups.add(new UserGroup("BRO 2", "Mes autres maxi BROs !", Color.GREEN));
+            userGroups.add(new UserGroup("BRO 3", "Et mes giga maxi BROs !", Color.BLUE));
         }
-        selectedGroup = 0;
+        for (int i = 0; i < userGroups.size(); i++) {
+            adapter.addFragment(new BrolistTemplate(userGroups.get(i)));
+            //addUserGroupsToDrawer(userGroups.get(i));
+        }
+        for (int i = 0; i < userGroups.size(); i++) {
+            tabLayout.getTabAt(i + 1).setText(userGroups.get(i).getName());
+        }
+        tabLayout.getTabAt(0).setText("Paramètres");
+        tabLayout.getTabAt(1).select();
+
+        //writeJSONtoFile();
+
 
         //create bro-sognal button transition
         BitmapDrawable[] drawables = new BitmapDrawable[2];
@@ -71,27 +102,16 @@ public class MainActivity extends AppCompatActivity {
         ImageView callbros = findViewById(R.id.callBros);
         callbros.setImageDrawable(transitionSignal);
 
-        //create listener to text zones
-        TextView broName = findViewById(R.id.broName);
-        broName.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                saveBroName(editable.toString());
-            }
-        });
+        //          create listener
+        //for buttons
         findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
-        findViewById(R.id.addBroButton).setOnClickListener(view -> addBro());
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        writeUserGroups();
     }
 
     private void deleteFile() {
@@ -99,37 +119,13 @@ public class MainActivity extends AppCompatActivity {
         broname.delete();
         File brolist = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json");
         brolist.delete();
+        File customMessage = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/customMessage.txt");
+        customMessage.delete();
     }
 
-    private void saveBroName(String text) {
-        try {
-            FileWriter out = new FileWriter(new File(getApplicationContext().getFilesDir(), "broname.txt"));
-            out.write(text);
-            out.close();
-        } catch (IOException e) {
-            Toast.makeText(this, "Sauvegarde du nom de bro impossible !", Toast.LENGTH_LONG).show();
-            System.out.println("writing error");
-        }
-    }
 
-    private void setBroName() {
-        File broname = new File(getApplicationContext().getFilesDir(), "broname.txt");
-        TextView broName = findViewById(R.id.broName);
-        if (broname.isFile()) {
-            if (broname.length() != 0L) {
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(broname.getAbsolutePath()));
-                    broName.setText(reader.readLine());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else System.out.println("empty file");
-        } else System.out.println("not a file");
-    }
-
-    private void readJSONfromFile() {
+    private void readUserGroups() {
         File fileName = new File(getApplicationContext().getFilesDir().getAbsoluteFile() + "/bros.json");
-
         if (fileName.isFile()) {
             long size = fileName.length();
             if (size != 0L) {
@@ -140,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     while (line != null) {
                         UserGroup userGroup = gson.fromJson(line, UserGroup.class);
                         userGroups.add(userGroup);
+                        Log.i("json", line);
                         line = reader.readLine();
                     }
                 } catch (Exception e) {
@@ -149,14 +146,36 @@ public class MainActivity extends AppCompatActivity {
         } else System.out.println("not a file");
     }
 
-    private void addToDrawer(User user, LinearLayout drawer) {
-        //create layouts
-        LinearLayout horizontalLayout = new LinearLayout(this);
-        horizontalLayout.setOrientation(LinearLayout.HORIZONTAL);
-        horizontalLayout.setGravity(Gravity.CENTER_VERTICAL);
+    private void writeUserGroups() {
+        File file = new File(getApplicationContext().getFilesDir().getAbsoluteFile() + "/bros.json");
+        FileWriter out;
+        try {
+            out = new FileWriter(file);
+            for (UserGroup u : userGroups) {
+                out.write(gson.toJson(u) + "\n");
+                Log.i("json write : ", gson.toJson(u));
+            }
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    private void addToDrawer(User user, LinearLayout drawer) {
+        //create layout
         LinearLayout verticalLayout = new LinearLayout(this);
         verticalLayout.setOrientation(LinearLayout.VERTICAL);
+        verticalLayout.setBackgroundColor(Color.WHITE);
+        LinearLayout.LayoutParams verticalParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        );
+        verticalParams.setMargins(10, 10, 10, 10);
+        verticalLayout.setLayoutParams(verticalParams);
+        verticalLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
 
         //set contact thumbnail
         ImageView thumbnail = new ImageView(this);
@@ -164,156 +183,65 @@ public class MainActivity extends AppCompatActivity {
             thumbnail.setImageURI(Uri.parse(user.getContactThumbnails()));
         } else {
             thumbnail.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_person_24));
+            thumbnail.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
         }
+        thumbnail.setBackgroundColor(Color.LTGRAY);
+        thumbnail.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.2f
+        ));
+
         //set other contact data
         TextView contactName = new TextView(this);
         contactName.setText(user.getContactName());
+        contactName.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.1f
+        ));
+        contactName.setGravity(Gravity.CENTER_HORIZONTAL);
+
         TextView contactNumber = new TextView(this);
         contactNumber.setText(user.getContactNumber());
+        contactNumber.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.1f
+        ));
+        contactNumber.setGravity(Gravity.CENTER_HORIZONTAL);
 
         //add delete bin next to contact
         ImageView contactBin = new ImageView(this);
         contactBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
-        contactBin.setColorFilter(getResources().getColor(R.color.design_default_color_error), PorterDuff.Mode.SRC_IN);
+        contactBin.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
         contactBin.setOnClickListener(view -> {
             removeUserFromFile(user.getContactID());
-            runOnUiThread(() -> drawer.removeView(horizontalLayout));
+            runOnUiThread(() -> drawer.removeView(verticalLayout));
         });
-
-        //add data to drawer
-        horizontalLayout.addView(thumbnail);
-        verticalLayout.addView(contactName);
-        verticalLayout.addView(contactNumber);
-        horizontalLayout.addView(verticalLayout);
-        horizontalLayout.addView(contactBin);
-
-        drawer.addView(horizontalLayout);
-    }
-
-    private void addUserGroupsToDrawer(UserGroup u){
-        LinearLayout drawer = findViewById(R.id.groupList);
-
-        ScrollView verticalScroll = new ScrollView(this);
-        verticalScroll.canScrollVertically(1);
-        verticalScroll.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
+        contactBin.setBackgroundColor(Color.RED);
+        contactBin.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                0.9f
-        ));
-
-        LinearLayout horizontalLayout = new LinearLayout(this);
-        horizontalLayout.setOrientation(LinearLayout.HORIZONTAL);
-        horizontalLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 0.1f
         ));
 
-        LinearLayout verticalLayout = new LinearLayout(this);
-        verticalLayout.setOrientation(LinearLayout.VERTICAL);
-        verticalLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1f
-        ));
-
-        LinearLayout verticalLayoutTitle = new LinearLayout(this);
-        verticalLayoutTitle.setOrientation(LinearLayout.VERTICAL);
-        verticalLayoutTitle.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1f
-        ));
-
-        LinearLayout verticalLayoutScroll = new LinearLayout(this);
-        verticalLayoutScroll.setOrientation(LinearLayout.VERTICAL);
-
-
-        //set group data
-        int groupColor = u.getColor();
-        TextView groupName = new TextView(this);
-        groupName.setText(u.getName());
-        groupName.setTextColor(groupColor);
-        groupName.setGravity(Gravity.CENTER_HORIZONTAL);
-        groupName.setTextSize(20);
-        groupName.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-        ));
-
-        TextView groupDescription = new TextView(this);
-        groupDescription.setText(u.getDescription());
-        groupDescription.setTextSize(14);
-        groupDescription.setGravity(Gravity.CENTER_HORIZONTAL);
-        groupDescription.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-        ));
-
-        //add delete bin next to contact
-        ImageView groupBin = new ImageView(this);
-        groupBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
-        groupBin.setColorFilter(getResources().getColor(R.color.design_default_color_error), PorterDuff.Mode.SRC_IN);
-        groupBin.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1f
-        ));
-        groupBin.setOnClickListener(view -> {
-            runOnUiThread(() -> drawer.removeView(horizontalLayout));
-        });
-
-        ImageView groupPlus = new ImageView(this);
-        groupPlus.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_action_add));
-        groupPlus.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
-        groupPlus.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1f
-        ));
-        groupPlus.setOnClickListener(view -> {
-            addUserGroupsToDrawer(new UserGroup("test", "test", Color.RED));
-        });
-
         //add data to drawer
-
-        verticalLayoutTitle.addView(groupName);
-        verticalLayoutTitle.addView(groupDescription);
-
-        horizontalLayout.addView(groupBin);
-        horizontalLayout.addView(verticalLayoutTitle);
-        horizontalLayout.addView(groupPlus);
-
-
-        verticalLayout.addView(horizontalLayout);
-        verticalScroll.addView(verticalLayoutScroll);
-        verticalLayout.addView(verticalScroll);
-
-        for (User user: u.getUserList()) {
-            addToDrawer(user, verticalLayoutScroll);
-        }
+        verticalLayout.addView(thumbnail);
+        verticalLayout.addView(contactName);
+        verticalLayout.addView(contactNumber);
+        verticalLayout.addView(contactBin);
 
         drawer.addView(verticalLayout);
     }
 
-    private void writeUserToFile(User user) {
-        String jsonString = gson.toJson(user);
-        writeToFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json", jsonString);
+    private int getContrastColor(int color) {
+        double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000;
+        return y >= 128 ? Color.BLACK : Color.WHITE;
     }
 
-    private void writeUserArrayToFile(List<User> userArray){
-        StringBuilder jsonString = new StringBuilder();
-        for (User u: userArray) {
-            jsonString.append('\n');
-            jsonString.append(gson.toJson(u));
-        }
-        jsonString.delete(0,1);
-        writeToFile(getApplicationContext().getFilesDir().getAbsolutePath() + "/bros.json", jsonString.toString());
-    }
 
-    private void writeToFile(String filePath, String text){
+    private void writeToFile(String filePath, String text) {
         File file = new File(filePath);
         FileWriter out;
         if (file.length() == 0L) {
@@ -356,24 +284,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 fileName.delete();
-                writeUserArrayToFile(userArray);
+                //writeUserArrayToFile(userArray);
             } else System.out.println("empty file");
         } else System.out.println("not a file");
-    }
-
-
-
-
-
-    private boolean checkContactPerm() {
-        return ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.READ_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestContactPerm() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, 5);
     }
 
     private boolean checkSMSPerm() {
@@ -419,40 +332,65 @@ public class MainActivity extends AppCompatActivity {
                 }
             }.start();
 
-            TextView broName = findViewById(R.id.broName);
-            String messageText = "BRO !! ";
-            if (broName.getText().
+            int selectedGroup = tabLayout.getSelectedTabPosition() - 1;
+            if (selectedGroup < 0) {
+                Toast.makeText(this, "Veuillez sélectionner un groupe de BROs", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-                    length() == 0) messageText += "Ton BRO anonyme a besoin d'aide !";
-            else messageText += "Ton BRO " + broName.getText() + " a besoin d'aide !";
+            File customName = new File(getApplicationContext().getFilesDir(), "broname.txt");
+            File customMessageFile = new File(getApplicationContext().getFilesDir(), "customMessage.txt");
+            String messageText = "";
+            String name = "";
+            if (customMessageFile.isFile() && customMessageFile.length() != 0L) {
+                try {
+                    BufferedReader messsageReader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
+                    messageText = messsageReader.readLine();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-            readJSONfromFile();
+            if (customName.isFile() && customName.length() != 0L) {
+                try {
+                    BufferedReader nameReader = new BufferedReader(new FileReader(customName.getAbsolutePath()));
+                    name = nameReader.readLine();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (name.length() != 0) {
+                if (messageText.length() == 0) {
+                    messageText = "BRO !! Ton BRO " + name + " a besoin d'aide !";
+                } else {
+                    messageText.replace("$nom", name);
+                }
+            } else {
+                if (messageText.length() == 0) {
+                    messageText = "BRO !! Ton BRO anonyme a besoin d'aide !";
+                }
+            }
+
             if (!userGroups.isEmpty()) {
                 if (userGroups.size() > selectedGroup) {
                     if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
                         for (User u : userGroups.get(selectedGroup).getUserList()) {
                             smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
                         }
-                    }
-                }
-            }
-
-            else {
+                    } else
+                        Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).show();
+                } else Log.e("sms", "bad group selection");
+            } else {
                 Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private void addBro() {
-        if (checkContactPerm()) {
-            pickContact();
-        } else {
-            requestContactPerm();
-        }
-    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 1 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -464,88 +402,89 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == 2) {
-                Uri contentData = data.getData();
-                Cursor phoneNumber;
-                Cursor contactData = getContentResolver().query(contentData, null, null, null, null);
-                if (contactData.moveToFirst()) {
-                    //if contact data exists, create new contact
-                    String contactID = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts._ID));
-                    String contactName = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    String contactThumbnails = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
-                    String idResult = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-                    int idResultHold = Integer.parseInt(idResult);
-
-                    //check if user already exists
-                    readJSONfromFile();
-                    if (!userGroups.isEmpty()) {
-                        if (userGroups.size() > selectedGroup) {
-                            if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
-                                for (User u : userGroups.get(selectedGroup).getUserList()) {
-                                    if (u.getContactID().equals(contactID)) {
-                                        Toast.makeText(this, "BRO déjà enregistré", Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (idResultHold == 1) {
-                        phoneNumber = getContentResolver().query(
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                                null,
-                                null
-                        );
-
-                        String contactNumber = "";
-
-                        //get last phoneNumber
-                        while (phoneNumber.moveToNext()) {
-                            contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        }
-
-                        //create user depending of thumbnail presence
-                        User user;
-                        if (contactThumbnails != null)
-                            user = new User(
-                                    contactID,
-                                    contactName,
-                                    contactThumbnails,
-                                    contactNumber
-                            );
-                        else user = new User(
-                                contactID,
-                                contactName,
-                                "",
-                                contactNumber
-                        );
-
-                        //add user to view and to file
-                        writeUserToFile(user);
-                        LinearLayout grouplist = findViewById(R.id.groupList);
-                        LinearLayout grouplist2 = (LinearLayout) grouplist.getChildAt(selectedGroup);
-                        ScrollView grouplist3 = (ScrollView) grouplist2.getChildAt(1);
-
-                        addToDrawer(user, (LinearLayout) grouplist3.getChildAt(0));
-
-                        //close data
-                        phoneNumber.close();
-                    }
-                    contactData.close();
-                }
-
-            }
-        } else {
-            Toast.makeText(this, "Veuillez sélectionner un BRO", Toast.LENGTH_LONG).show();
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (resultCode == RESULT_OK) {
+//            if (requestCode == 2) {
+//                Uri contentData = data.getData();
+//                Cursor phoneNumber;
+//                Cursor contactData = getContentResolver().query(contentData, null, null, null, null);
+//                if (contactData.moveToFirst()) {
+//                    //if contact data exists, create new contact
+//                    String contactID = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts._ID));
+//                    String contactName = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+//                    String contactThumbnails = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
+//                    String idResult = contactData.getString(contactData.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+//                    int idResultHold = Integer.parseInt(idResult);
+//
+//                    int selectedGroup = tabLayout.getSelectedTabPosition() + 1;
+//
+//                    //check if user already exists
+//                    //readUserGroups();
+//                    if (!userGroups.isEmpty()) {
+//                        if (userGroups.size() > selectedGroup) {
+//                            UserGroup userGroup = userGroups.get(selectedGroup);
+//                            if (!userGroup.getUserList().isEmpty()) {
+//                                for (User u : userGroup.getUserList()) {
+//                                    if (u.getContactID().equals(contactID)) {
+//                                        Toast.makeText(this, "BRO déjà enregistré", Toast.LENGTH_LONG).show();
+//                                        return;
+//                                    }
+//                                }
+//                            }
+//
+//                            if (idResultHold == 1) {
+//                                phoneNumber = getContentResolver().query(
+//                                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+//                                        null,
+//                                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
+//                                        null,
+//                                        null
+//                                );
+//
+//                                String contactNumber = "";
+//
+//                                //get last phoneNumber
+//                                while (phoneNumber.moveToNext()) {
+//                                    contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                                }
+//
+//                                //create user depending of thumbnail presence
+//                                User user;
+//                                if (contactThumbnails != null)
+//                                    user = new User(
+//                                            contactID,
+//                                            contactName,
+//                                            contactThumbnails,
+//                                            contactNumber
+//                                    );
+//                                else user = new User(
+//                                        contactID,
+//                                        contactName,
+//                                        "",
+//                                        contactNumber
+//                                );
+//
+//                                //add user to view and to file
+//                                //writeUserToFile(user);
+//                                userGroup.addUser(user);
+//                                adapter.refreshFragment(selectedGroup - 1, new BrolistTemplate(userGroup));
+//
+//                                //close data
+//                                phoneNumber.close();
+//
+//                            }
+//                        }
+//                    }
+//                    contactData.close();
+//                }
+//
+//            }
+//        } else {
+//            Toast.makeText(this, "Veuillez sélectionner un BRO", Toast.LENGTH_LONG).show();
+//        }
+//    }
 
 }

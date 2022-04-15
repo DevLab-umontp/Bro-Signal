@@ -10,77 +10,34 @@
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
-
-    <LinearLayout
-        android:id="@+id/mainBro"
+    <ImageView
+        android:id="@+id/callBros"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.4"
-        android:orientation="vertical">
+        android:layout_weight="0.2"
+        android:contentDescription="@string/bro_signal"
+        app:srcCompat="@drawable/brosignal" />
 
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:text="@string/votre_nom_de_bro"
-            android:textSize="16sp" />
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/groupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal"
+        app:tabMode="scrollable">
 
-        <EditText
-            android:id="@+id/broName"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:autofillHints=""
-            android:ems="10"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:hint="@string/broname"
-            android:inputType="textPersonName"
-            android:textSize="16sp"
-            tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMS" />
 
-        <ImageView
-            android:id="@+id/callBros"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:contentDescription="@string/bro_signal"
-            app:srcCompat="@drawable/brosignal" />
+    </com.google.android.material.tabs.TabLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/groupList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.4"/>
+        android:layout_weight="0.4" />
 
-    <LinearLayout
-        android:id="@+id/fullscreen_content_controls"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_weight="0.1"
-        android:orientation="horizontal"
-        tools:ignore="UselessParent">
-
-        <Button
-            android:id="@+id/addBroButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#FF0000"
-            android:fontFamily="sans-serif-condensed"
-            android:text="@string/ajouter_un_bro"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="#FFFFFF"
-            app:backgroundTint="#FF0000" />
-
-    </LinearLayout>
 
 </LinearLayout>
