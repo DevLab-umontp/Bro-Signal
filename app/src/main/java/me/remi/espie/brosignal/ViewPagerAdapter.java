@@ -1,5 +1,7 @@
 package me.remi.espie.brosignal;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -34,7 +36,12 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public void removeFragment(int position){
         list.remove(position);
-        notifyItemChanged(position);
+        notifyItemRemoved(position-1);
+    }
+
+    public void removeFragment(Fragment fragment){
+        int pos = list.indexOf(fragment);
+        if (pos>-1) removeFragment(pos);
     }
 
     public void refreshFragment(int position, Fragment fragment){

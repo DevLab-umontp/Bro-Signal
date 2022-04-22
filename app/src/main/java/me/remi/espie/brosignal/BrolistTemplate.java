@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.gridlayout.widget.GridLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -24,17 +25,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
+import java.util.Random;
+
+import yuku.ambilwarna.AmbilWarnaDialog;
+
 
 public class BrolistTemplate extends Fragment {
 
     private UserGroup userGroup;
+
     private View view;
-    private int dp1;
+    private View popupView;
+    private ViewPagerAdapter adapter;
+
+    private Button broButton;
+    private TextView broDesc;
 
     public UserGroup getUserGroup() {
         return userGroup;
@@ -54,22 +66,25 @@ public class BrolistTemplate extends Fragment {
 
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_brolist_template, container, false);
-
-        Button broButton = view.findViewById(R.id.addBroButton);
-        TextView broDesc = view.findViewById(R.id.broDesc);
+        popupView = inflater.inflate(R.layout.popup_settings, null);
+        broButton = view.findViewById(R.id.addBroButton);
+        broDesc = view.findViewById(R.id.broDesc);
         if (userGroup !=null) {
             broButton.setBackgroundColor(userGroup.getColor());
             broButton.setTextColor(getContrastColor(userGroup.getColor()));
             broDesc.setText(userGroup.getDescription());
         }
 
-        broButton.setOnClickListener(view1 -> addBro(view));
+        broButton.setOnClickListener(this::addBro);
+        view.findViewById(R.id.addGroup).setOnClickListener(this::createGroup);
+        view.findViewById(R.id.groupSettings).setOnClickListener(this::changeSettings);
+        view.findViewById(R.id.deleteGroup).setOnClickListener(this::deleteSelf);
 
         for (User u: userGroup.getUserList()) {
             addToDrawer(u);
         }
 
-        dp1 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+        int dp1 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                 view.getResources().getDisplayMetrics());
 
         Log.i("dp1", String.valueOf(dp1));
@@ -256,5 +271,50 @@ public class BrolistTemplate extends Fragment {
         double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000;
         return y >= 128 ? Color.BLACK : Color.WHITE;
     }
+
+    private void deleteSelf(View v){
+        Log.e("delete", "group " + userGroup.getName() + " deleted ? " + userGroup.deleteSelf());
+        getAdapter().removeFragment(this);
+    }
+
+    private void createGroup(View v){
+        UserGroup temp = new UserGroup("BROs", "Mes nouveaux BROs !", "", getRandomColor(), userGroup.getParentList());
+        userGroup.getParentList().add(temp);
+        getAdapter().addFragment(new BrolistTemplate(temp));
+    }
+
+    private void changeSettings(View v){
+//        new AmbilWarnaDialog(this.getContext(), userGroup.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+//            @Override
+//            public void onOk(AmbilWarnaDialog dialog, int color) {
+//                // color is the color selected by the user.
+//            }
+//
+//            @Override
+//            public void onCancel(AmbilWarnaDialog dialog) {
+//                // cancel was selected by the user
+//            }
+//        }).show();
+
+//            PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+//
+//        // show the popup window
+//        // which view you pass in doesn't matter, it is only used for the window tolken
+//        popupWindow.showAtLocation(view.getRootView(), Gravity.CENTER, 0, 0);
+    }
+
+    private int getRandomColor(){
+        Random rnd = new Random();
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+    }
+
+    private ViewPagerAdapter getAdapter(){
+        if (adapter == null){
+            ViewPager2 viewPager2 = (ViewPager2) view.getRootView().findViewById(R.id.groupList);
+            adapter = (ViewPagerAdapter) viewPager2.getAdapter();
+        }
+        return adapter;
+    }
+
 
 }
