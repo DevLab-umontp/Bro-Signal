@@ -29,4 +29,6 @@
     <string name="select_bro_group">Veuillez sélectionner un groupe de BROs</string>
     <string name="no_bro">Vous n\'avez pas de bro T_T</string>
     <string name="unauthorized">Permission non accordée</string>
+    <string name="new_bro">Mes nouveaux BROs !</string>
+    <string name="show_number">Afficher les numéro des contacts ?</string>
 </resources>

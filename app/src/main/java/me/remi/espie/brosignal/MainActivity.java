@@ -51,12 +51,13 @@ public class MainActivity extends AppCompatActivity {
         //deleteFile();
         readUserGroups();
         settings = readUserData();
-        SettingsFragment settingsFragment = new SettingsFragment(settings);
+        SettingsFragment settingsFragment = new SettingsFragment();
 
         tabLayout = findViewById(R.id.groupName);
         ViewPager2 viewPager2 = findViewById(R.id.groupList);
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager2.setAdapter(adapter);
+
 
         new TabLayoutMediator(tabLayout, viewPager2, this::setTabText).attach();
 
@@ -127,14 +128,15 @@ public class MainActivity extends AppCompatActivity {
                     reader = new BufferedReader(new FileReader(fileName.getAbsolutePath()));
                     String line = reader.readLine();
                     Log.i("json read", line);
-                    return gson.fromJson(line, Settings.class);
+                    Settings settings = gson.fromJson(line, Settings.class);
+                    return settings.setInstance();
                 } catch (Exception e) {
                     e.printStackTrace();
                     deleteFile();
                 }
             } else System.out.println("empty setting file");
         } else System.out.println("not a setting file");
-        return new Settings("", "", false);
+        return Settings.getInstance("", "", false, false);
     }
 
     private void writeUserData() {

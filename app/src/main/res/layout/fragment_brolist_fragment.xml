@@ -29,11 +29,11 @@
             android:id="@+id/groupSettings"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:background="@drawable/rounded_corner"
             android:clickable="true"
             android:contentDescription="@string/edit_group"
-            android:background="@drawable/rounded_corner"
             android:src="@drawable/ic_action_settings"
-            android:tint="@color/white"
+            android:tint="@color/darkey"
             tools:ignore="ImageContrastCheck" />
 
         <TextView
@@ -49,11 +49,11 @@
             android:id="@+id/addGroup"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:background="@drawable/rounded_corner"
             android:clickable="true"
             android:contentDescription="@string/create_group"
-            android:background="@drawable/rounded_corner"
             android:src="@drawable/ic_action_add"
-            android:tint="@color/white"
+            android:tint="@color/darkey"
             tools:ignore="ImageContrastCheck" />
     </LinearLayout>
 

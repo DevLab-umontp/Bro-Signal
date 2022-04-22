@@ -53,6 +53,7 @@ public class BrolistFragment extends Fragment {
 
     private Button broButton;
     private TextView broDesc;
+    private final Settings settings = Settings.getInstance();
 
     public BrolistFragment(UserGroup userGroup) {
         this.userGroup = userGroup;
@@ -67,7 +68,7 @@ public class BrolistFragment extends Fragment {
         popupView = inflater.inflate(R.layout.popup_settings, null);
         broButton = view.findViewById(R.id.addBroButton);
         broDesc = view.findViewById(R.id.broDesc);
-        if (userGroup !=null) {
+        if (userGroup != null) {
             broButton.setBackgroundColor(userGroup.getColor());
             broButton.setTextColor(getContrastColor(userGroup.getColor()));
             broDesc.setText(userGroup.getDescription());
@@ -78,8 +79,8 @@ public class BrolistFragment extends Fragment {
         view.findViewById(R.id.groupSettings).setOnClickListener(this::changeSettings);
         view.findViewById(R.id.deleteGroup).setOnClickListener(this::deleteSelf);
 
-        for (User u: userGroup.getUserList()) {
-            addToDrawer(u);
+        for (User u : userGroup.getUserList()) {
+            addToDrawer(u, settings.isShowNumbers());
         }
 
         int dp1 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
@@ -89,7 +90,7 @@ public class BrolistFragment extends Fragment {
         return view;
     }
 
-    private void addToDrawer(User user) {
+    private void addToDrawer(User user, boolean showNumber) {
         GridLayout brolist = view.findViewById(R.id.brolist);
         //create layout
         LinearLayout verticalLayout = new LinearLayout(getContext());
@@ -111,7 +112,7 @@ public class BrolistFragment extends Fragment {
             thumbnail.setImageURI(Uri.parse(user.getContactThumbnails()));
         } else {
             thumbnail.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_person_24));
-            thumbnail.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+            thumbnail.setColorFilter(getResources().getColor(R.color.darkey), PorterDuff.Mode.SRC_IN);
         }
         thumbnail.setBackgroundResource(R.drawable.rounded_corner);
         thumbnail.setLayoutParams(new LinearLayout.LayoutParams(
@@ -119,6 +120,8 @@ public class BrolistFragment extends Fragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 0.2f
         ));
+        verticalLayout.addView(thumbnail);
+
 
         //set other contact data
         TextView contactName = new TextView(getContext());
@@ -129,16 +132,19 @@ public class BrolistFragment extends Fragment {
                 0.1f
         ));
         contactName.setGravity(Gravity.CENTER_HORIZONTAL);
+        verticalLayout.addView(contactName);
 
-        TextView contactNumber = new TextView(getContext());
-        contactNumber.setText(user.getContactNumber());
-        contactNumber.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                0.1f
-        ));
-        contactNumber.setGravity(Gravity.CENTER_HORIZONTAL);
-
+        if (showNumber) {
+            TextView contactNumber = new TextView(getContext());
+            contactNumber.setText(user.getContactNumber());
+            contactNumber.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    0.1f
+            ));
+            contactNumber.setGravity(Gravity.CENTER_HORIZONTAL);
+            verticalLayout.addView(contactNumber);
+        }
         //add delete bin next to contact
         ImageView contactBin = new ImageView(getContext());
         contactBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
@@ -150,17 +156,13 @@ public class BrolistFragment extends Fragment {
         contactBin.setBackgroundResource(R.drawable.rounded_corner);
         //contactBin.setBackgroundColor(Color.RED);
         contactBin.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 0.1f
         ));
-
-        //add data to drawer
-        verticalLayout.addView(thumbnail);
-        verticalLayout.addView(contactName);
-        verticalLayout.addView(contactNumber);
         verticalLayout.addView(contactBin);
 
+        //add data to drawer
         brolist.addView(verticalLayout);
     }
 
@@ -182,55 +184,53 @@ public class BrolistFragment extends Fragment {
                     int idResultHold = Integer.parseInt(idResult);
 
                     //check if user already exists
-                    //readUserGroups();
-                            if (!userGroup.getUserList().isEmpty()) {
-                                for (User u : userGroup.getUserList()) {
-                                    if (u.getContactID().equals(contactID)) {
-                                        Toast.makeText(getActivity(), R.string.bro_already_saved, Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                }
+                    if (!userGroup.getUserList().isEmpty()) {
+                        for (User u : userGroup.getUserList()) {
+                            if (u.getContactID().equals(contactID)) {
+                                Toast.makeText(getActivity(), R.string.bro_already_saved, Toast.LENGTH_LONG).show();
+                                return;
                             }
+                        }
+                    }
 
-                            if (idResultHold == 1) {
-                                phoneNumber = getContext().getContentResolver().query(
-                                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                        null,
-                                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
-                                        null,
-                                        null
-                                );
+                    if (idResultHold == 1) {
+                        phoneNumber = getContext().getContentResolver().query(
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                null,
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID,
+                                null,
+                                null
+                        );
 
-                                String contactNumber = "";
+                        String contactNumber = "";
 
-                                //get last phoneNumber
-                                while (phoneNumber.moveToNext()) {
-                                    contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                                }
+                        //get last phoneNumber
+                        while (phoneNumber.moveToNext()) {
+                            contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        }
 
-                                //create user depending of thumbnail presence
-                                User user;
-                                if (contactThumbnails != null)
-                                    user = new User(
-                                            contactID,
-                                            contactName,
-                                            contactThumbnails,
-                                            contactNumber
-                                    );
-                                else user = new User(
-                                        contactID,
-                                        contactName,
-                                        "",
-                                        contactNumber
-                                );
+                        //create user depending of thumbnail presence
+                        User user;
+                        if (contactThumbnails != null)
+                            user = new User(
+                                    contactID,
+                                    contactName,
+                                    contactThumbnails,
+                                    contactNumber
+                            );
+                        else user = new User(
+                                contactID,
+                                contactName,
+                                "",
+                                contactNumber
+                        );
 
-                                //add user to view and to file
-                                //writeUserToFile(user);
-                                userGroup.addUser(user);
-                                addToDrawer(user);
+                        //add user to view and to file
+                        userGroup.addUser(user);
+                        addToDrawer(user, settings.isShowNumbers());
 
-                                //close data
-                                phoneNumber.close();
+                        //close data
+                        phoneNumber.close();
 
                     }
                     contactData.close();
@@ -271,18 +271,18 @@ public class BrolistFragment extends Fragment {
         return y >= 128 ? Color.BLACK : Color.WHITE;
     }
 
-    private void deleteSelf(View v){
+    private void deleteSelf(View v) {
         Log.e("delete", "group " + userGroup.getName() + " deleted ? " + userGroup.deleteSelf());
         getAdapter().removeFragment(this);
     }
 
-    private void createGroup(View v){
-        UserGroup temp = new UserGroup("BROs", "Mes nouveaux BROs !", "", getRandomColor(), userGroup.getParentList());
+    private void createGroup(View v) {
+        UserGroup temp = new UserGroup("BROs", getString(R.string.new_bro), "", getRandomColor(), userGroup.getParentList());
         userGroup.getParentList().add(temp);
         getAdapter().addFragment(new BrolistFragment(temp));
     }
 
-    private void changeSettings(View v){
+    private void changeSettings(View v) {
 
         PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, true);
         popupWindow.setAnimationStyle(R.style.popup_window_fade);
@@ -306,17 +306,17 @@ public class BrolistFragment extends Fragment {
 
         colorView.setOnClickListener((View view1) ->
                 new AmbilWarnaDialog(this.getContext(), groupColor[0], new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                groupColor[0] = color;
-                colorView.setBackgroundColor(color);
-            }
+                    @Override
+                    public void onOk(AmbilWarnaDialog dialog, int color) {
+                        groupColor[0] = color;
+                        colorView.setBackgroundColor(color);
+                    }
 
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {
-                // cancel was selected by the user
-            }
-        }).show());
+                    @Override
+                    public void onCancel(AmbilWarnaDialog dialog) {
+                        // cancel was selected by the user
+                    }
+                }).show());
 
         editGroupName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -369,9 +369,9 @@ public class BrolistFragment extends Fragment {
             }
         });
 
-        popupView.findViewById(R.id.cancelButton).setOnClickListener((View vi)->popupWindow.dismiss());
+        popupView.findViewById(R.id.cancelButton).setOnClickListener((View vi) -> popupWindow.dismiss());
 
-        popupView.findViewById(R.id.validateButton).setOnClickListener((View vi)-> {
+        popupView.findViewById(R.id.validateButton).setOnClickListener((View vi) -> {
             userGroup.setName(groupName[0]);
             TabLayout tabLayout = view.getRootView().findViewById(R.id.groupName);
             tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).setText(groupName[0]);
@@ -391,13 +391,13 @@ public class BrolistFragment extends Fragment {
         popupWindow.showAtLocation(view.getRootView(), Gravity.CENTER, 0, 0);
     }
 
-    private int getRandomColor(){
+    private int getRandomColor() {
         Random rnd = new Random();
         return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
     }
 
-    private ViewPagerAdapter getAdapter(){
-        if (adapter == null){
+    private ViewPagerAdapter getAdapter() {
+        if (adapter == null) {
             ViewPager2 viewPager2 = (ViewPager2) view.getRootView().findViewById(R.id.groupList);
             adapter = (ViewPagerAdapter) viewPager2.getAdapter();
         }

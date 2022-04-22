@@ -66,6 +66,16 @@
         android:autofillHints="" />
 
     <CheckBox
+        android:id="@+id/numberCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:checked="false"
+        android:gravity="center|center_vertical"
+        android:text="@string/show_number"
+        android:textSize="16sp" />
+
+    <CheckBox
         android:id="@+id/spamCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

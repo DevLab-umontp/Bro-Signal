@@ -3,6 +3,7 @@ package me.remi.espie.brosignal;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,8 +17,8 @@ public class SettingsFragment extends Fragment {
 
     private final Settings settings;
 
-    public SettingsFragment(Settings settings) {
-        this.settings = settings;
+    public SettingsFragment() {
+        this.settings = Settings.getInstance();
     }
 
     @Override
@@ -29,6 +30,13 @@ public class SettingsFragment extends Fragment {
         CheckBox spam = view.findViewById(R.id.spamCheckBox);
         spam.setChecked(settings.isSpam());
         spam.setOnClickListener((View v)-> settings.setSpam(spam.isChecked()));
+
+        CheckBox showNumbers = view.findViewById(R.id.numberCheckBox);
+        showNumbers.setChecked(settings.isShowNumbers());
+        showNumbers.setOnClickListener((View v)-> {
+            settings.setShowNumbers(showNumbers.isChecked());
+            ((ViewPagerAdapter) ((ViewPager2) view.getRootView().findViewById(R.id.groupList)).getAdapter()).refreshAll();
+            });
 
         TextView customMessage = view.findViewById(R.id.customMessage);
         customMessage.setText(settings.getCustomMessage());

@@ -9,9 +9,6 @@
             android:left="20dp"
             android:right="20dp"
             android:top="20dp" />
-
-        <solid android:color="#90000000" />
-
     </shape>
 </item>
 
@@ -19,7 +16,7 @@
 <item>
     <shape>
         <solid android:color="@color/white" />
-
+        <stroke android:color="@color/darkey" android:width="3dp"/>
         <corners android:radius="10dp" />
     </shape>
 </item>
