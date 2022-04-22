@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Settings"
+    tools:context=".SettingsFragment"
     android:orientation="vertical">
 
 
@@ -62,5 +62,15 @@
         android:inputType="textMultiLine"
         android:minHeight="48dp"
         android:singleLine="false" />
+
+    <CheckBox
+        android:id="@+id/spamCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:checked="false"
+        android:gravity="center|center_vertical"
+        android:text="Autoriser le spam ?"
+        android:textSize="16sp" />
 
 </LinearLayout>

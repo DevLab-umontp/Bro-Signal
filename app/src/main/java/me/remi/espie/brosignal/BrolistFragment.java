@@ -41,7 +41,7 @@ import java.util.Random;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 
-public class BrolistTemplate extends Fragment {
+public class BrolistFragment extends Fragment {
 
     private UserGroup userGroup;
 
@@ -60,7 +60,7 @@ public class BrolistTemplate extends Fragment {
         this.userGroup = userGroup;
     }
 
-    public BrolistTemplate(UserGroup userGroup) {
+    public BrolistFragment(UserGroup userGroup) {
         this.userGroup = userGroup;
     }
 
@@ -69,7 +69,7 @@ public class BrolistTemplate extends Fragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_brolist_template, container, false);
+        view = inflater.inflate(R.layout.fragment_brolist_fragment, container, false);
         popupView = inflater.inflate(R.layout.popup_settings, null);
         broButton = view.findViewById(R.id.addBroButton);
         broDesc = view.findViewById(R.id.broDesc);
@@ -284,7 +284,7 @@ public class BrolistTemplate extends Fragment {
     private void createGroup(View v){
         UserGroup temp = new UserGroup("BROs", "Mes nouveaux BROs !", "", getRandomColor(), userGroup.getParentList());
         userGroup.getParentList().add(temp);
-        getAdapter().addFragment(new BrolistTemplate(temp));
+        getAdapter().addFragment(new BrolistFragment(temp));
     }
 
     private void changeSettings(View v){

@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
@@ -42,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPagerAdapter adapter;
 
+    Settings settings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,17 +51,17 @@ public class MainActivity extends AppCompatActivity {
 
         //deleteFile();
         readUserGroups();
+        settings = readUserData();
+        SettingsFragment settingsFragment = new SettingsFragment(settings);
 
         tabLayout = findViewById(R.id.groupName);
         ViewPager2 viewPager2 = findViewById(R.id.groupList);
         adapter = new ViewPagerAdapter(this);
         viewPager2.setAdapter(adapter);
 
-
         new TabLayoutMediator(tabLayout, viewPager2, this::setTabText).attach();
 
-        Fragment setting = new Settings();
-        adapter.addFragment(0, setting);
+        adapter.addFragment(0, settingsFragment);
 
         if (userGroups.isEmpty()) {
             userGroups.add(new UserGroup("BRO 1", "Tous mes BROs réunis !", "", Color.RED, userGroups));
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             userGroups.add(new UserGroup("BRO 3", "Et mes giga maxi BROs !", "", Color.BLUE, userGroups));
         }
         for (int i = 0; i < userGroups.size(); i++) {
-            adapter.addFragment(new BrolistTemplate(userGroups.get(i)));
+            adapter.addFragment(new BrolistFragment(userGroups.get(i)));
         }
 
         tabLayout.getTabAt(1).select();
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         writeUserGroups();
+        writeUserData();
         super.onStop();
     }
 
@@ -112,6 +114,41 @@ public class MainActivity extends AppCompatActivity {
         brolist.delete();
         File customMessage = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/customMessage.txt");
         customMessage.delete();
+        File setting = new File(getApplicationContext().getFilesDir().getAbsolutePath() + "/settings.json");
+        setting.delete();
+    }
+
+    private Settings readUserData() {
+        File fileName = new File(getApplicationContext().getFilesDir().getAbsoluteFile() + "/settings.json");
+        if (fileName.isFile()) {
+            long size = fileName.length();
+            if (size != 0L) {
+                BufferedReader reader;
+                try {
+                    reader = new BufferedReader(new FileReader(fileName.getAbsolutePath()));
+                    String line = reader.readLine();
+                    Log.i("json read", line);
+                    return gson.fromJson(line, Settings.class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    deleteFile();
+                }
+            } else System.out.println("empty setting file");
+        } else System.out.println("not a setting file");
+        return new Settings("", "", false);
+    }
+
+    private void writeUserData() {
+        File file = new File(getApplicationContext().getFilesDir().getAbsoluteFile() + "/settings.json");
+        FileWriter out;
+        try {
+            out = new FileWriter(file);
+            out.write(gson.toJson(settings));
+            Log.i("json write", gson.toJson(settings));
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void readUserGroups() {
@@ -134,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                     deleteFile();
                 }
-            } else System.out.println("empty file");
-        } else System.out.println("not a file");
+            } else System.out.println("empty user group file");
+        } else System.out.println("not a user group file");
     }
 
     private void writeUserGroups() {
@@ -151,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private void writeToFile(String filePath, String text) {
@@ -200,25 +236,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendBroSignal() {
-        if (!sendDelay) {
-            sendDelay = true;
-            ImageView callBros = findViewById(R.id.callBros);
-            transitionSignal.startTransition(10);
-            callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
-                    .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
+        if (settings.isSpam() || (!settings.isSpam() && !sendDelay)) {
+            if (!sendDelay) {
+                sendDelay = true;
+                ImageView callBros = findViewById(R.id.callBros);
+                transitionSignal.startTransition(10);
+                callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
+                        .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
 
-            new Thread() {
-                public void run() {
-                    try {
-                        Thread.sleep(750);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                new Thread() {
+                    public void run() {
+                        try {
+                            Thread.sleep(750);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        transitionSignal.reverseTransition(150);
+                        sendDelay = false;
                     }
-                    transitionSignal.reverseTransition(150);
-                    sendDelay = false;
-                }
-            }.start();
-
+                }.start();
+            }
             int selectedGroup = tabLayout.getSelectedTabPosition() - 1;
             if (selectedGroup < 0) {
                 Toast.makeText(this, "Veuillez sélectionner un groupe de BROs", Toast.LENGTH_LONG).show();
@@ -228,33 +265,32 @@ public class MainActivity extends AppCompatActivity {
             if (!userGroups.isEmpty()) {
                 if (userGroups.size() > selectedGroup) {
 
-                    File customName = new File(getApplicationContext().getFilesDir(), "broname.txt");
-                    String name = "";
+                    String name = settings.getBroName();
 
-                    if (customName.isFile() && customName.length() != 0L) {
-                        try {
-                            BufferedReader nameReader = new BufferedReader(new FileReader(customName.getAbsolutePath()));
-                            name = nameReader.readLine();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
+//                    File customName = new File(getApplicationContext().getFilesDir(), "broname.txt");
+//                    if (customName.isFile() && customName.length() != 0L) {
+//                        try {
+//                            BufferedReader nameReader = new BufferedReader(new FileReader(customName.getAbsolutePath()));
+//                            name = nameReader.readLine();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
 
                     String messageText = "";
                     if (userGroups.get(selectedGroup).getCustomMessage().equals("")) {
-
-                        File customMessageFile = new File(getApplicationContext().getFilesDir(), "customMessage.txt");
-
-                        if (customMessageFile.isFile() && customMessageFile.length() != 0L) {
-                            try {
-                                BufferedReader messsageReader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
-                                messageText = messsageReader.readLine();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    else {
+                        messageText = settings.getCustomMessage();
+//                        File customMessageFile = new File(getApplicationContext().getFilesDir(), "customMessage.txt");
+//
+//                        if (customMessageFile.isFile() && customMessageFile.length() != 0L) {
+//                            try {
+//                                BufferedReader messsageReader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
+//                                messageText = messsageReader.readLine();
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+                    } else {
                         messageText = userGroups.get(selectedGroup).getCustomMessage();
                     }
 
