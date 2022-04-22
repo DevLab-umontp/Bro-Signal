@@ -93,8 +93,8 @@ public class BrolistFragment extends Fragment {
         GridLayout brolist = view.findViewById(R.id.brolist);
         //create layout
         LinearLayout verticalLayout = new LinearLayout(getContext());
+        verticalLayout.setBackgroundResource(R.drawable.card);
         verticalLayout.setOrientation(LinearLayout.VERTICAL);
-        verticalLayout.setBackgroundColor(Color.WHITE);
         LinearLayout.LayoutParams verticalParams = new LinearLayout.LayoutParams(
                 300,
                 300,
@@ -113,7 +113,7 @@ public class BrolistFragment extends Fragment {
             thumbnail.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_person_24));
             thumbnail.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
         }
-        thumbnail.setBackgroundColor(Color.LTGRAY);
+        thumbnail.setBackgroundResource(R.drawable.rounded_corner);
         thumbnail.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -142,12 +142,13 @@ public class BrolistFragment extends Fragment {
         //add delete bin next to contact
         ImageView contactBin = new ImageView(getContext());
         contactBin.setImageURI(Uri.parse("android.resource://me.remi.espie.brosignal/" + R.drawable.ic_baseline_delete_forever_24));
-        contactBin.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+        contactBin.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
         contactBin.setOnClickListener(view -> {
             userGroup.removeUser(user);
             brolist.removeView(verticalLayout);
         });
-        contactBin.setBackgroundColor(Color.RED);
+        contactBin.setBackgroundResource(R.drawable.rounded_corner);
+        //contactBin.setBackgroundColor(Color.RED);
         contactBin.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
