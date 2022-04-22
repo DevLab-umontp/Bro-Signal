@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
             }
             int selectedGroup = tabLayout.getSelectedTabPosition() - 1;
             if (selectedGroup < 0) {
-                Toast.makeText(this, "Veuillez sélectionner un groupe de BROs", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.select_bro_group, Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -292,10 +292,10 @@ public class MainActivity extends AppCompatActivity {
                             smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
                         }
                     } else
-                        Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
                 } else Log.e("sms", "bad group selection");
             } else {
-                Toast.makeText(this, "Vous n'avez pas de bro T_T", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == 5 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             sendBroSignal();
         } else {
-            Toast.makeText(this, "Permission non accordée", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.unauthorized, Toast.LENGTH_LONG).show();
         }
     }
 

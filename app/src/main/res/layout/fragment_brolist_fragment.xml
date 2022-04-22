@@ -18,16 +18,21 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:clickable="true"
+            android:contentDescription="@string/delete_group"
             android:src="@drawable/ic_baseline_delete_forever_24"
-            app:tint="#FF0000" />
+            app:tint="#FF0000"
+            tools:ignore="ImageContrastCheck"
+            android:focusable="true" />
 
         <ImageButton
             android:id="@+id/groupSettings"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:clickable="true"
+            android:contentDescription="@string/edit_group"
             android:src="@drawable/ic_action_settings"
-            android:tint="@color/white" />
+            android:tint="@color/white"
+            tools:ignore="ImageContrastCheck" />
 
         <TextView
             android:id="@+id/broDesc"
@@ -43,14 +48,17 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:clickable="true"
+            android:contentDescription="@string/create_group"
             android:src="@drawable/ic_action_add"
-            android:tint="@color/white" />
+            android:tint="@color/white"
+            tools:ignore="ImageContrastCheck" />
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="8">
+        android:layout_weight="8"
+        android:contentDescription="@string/contact_list">
 
         <androidx.gridlayout.widget.GridLayout
             android:id="@+id/brolist"
@@ -82,9 +90,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:fontFamily="sans-serif-condensed"
-            android:text="@string/ajouter_un_bro"
+            android:text="@string/add_bro"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            tools:ignore="TextContrastCheck" />
 
     </LinearLayout>
 </LinearLayout>

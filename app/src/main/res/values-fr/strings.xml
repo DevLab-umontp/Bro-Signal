@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bro Signal</string>
+    <string name="bro_signal">BRO Signal</string>
+    <string name="bro_name">Quel est ton nom de BRO ?</string>
+    <string name="add_bro">Ajouter un BRO</string>
+    <string name="your_bro_name">Ton nom de BRO :</string>
+    <string name="bro_list">Liste des BROs</string>
+    <string name="send_custom_message">Envoyer un message personnalisé :</string>
+    <string name="custom_message_text">BRO ! Ton BRO <font color='#01C6DB'>$nom</font> a besoin d\'aide !</string>
+    <string name="custom_message_helper">Utilise <font color='#01C6DB'>$nom</font> pour ajouter ton nom de BRO au message ! (ou tape le, comme tu veux !)</string>
+    <string name="create_widget">Créer un widget sur le bureau</string>
+    <string name="group_name">Nom du groupe :</string>
+    <string name="group_description">Description du groupe :</string>
+    <string name="name">Name</string>
+    <string name="group_custom_message">Message personnalisé pour le groupe :</string>
+    <string name="group_color">Couleur du groupe :</string>
+    <string name="validate">Valider</string>
+    <string name="group_desc_editable">Description</string>
+    <string name="group_custom_message_editable">Message</string>
+    <string name="cancel">Annuler</string>
+    <string name="edit_group">Editer groupe</string>
+    <string name="delete_group">Supprimer groupe</string>
+    <string name="create_group">Créer groupe</string>
+    <string name="contact_list">Liste de contact du groupe</string>
+    <string name="spam_authorization">Autoriser le spam ?</string>
+    <string name="bro_already_saved">BRO déjà enregistré</string>
+    <string name="select_bro">Veuillez sélectionner un BRO</string>
+    <string name="select_bro_group">Veuillez sélectionner un groupe de BROs</string>
+    <string name="no_bro">Vous n\'avez pas de bro T_T</string>
+    <string name="unauthorized">Permission non accordée</string>
+</resources>

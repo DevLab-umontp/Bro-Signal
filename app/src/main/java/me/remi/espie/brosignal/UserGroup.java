@@ -9,7 +9,7 @@ public class UserGroup {
     private String description;
     private String customMessage;
     private int color;
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
     private transient List<UserGroup> parentList = new ArrayList<>();
 
 

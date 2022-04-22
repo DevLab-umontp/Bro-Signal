@@ -1,107 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical">
 
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center_horizontal"
-        android:text="Nom du groupe :"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/editGroupName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center_horizontal"
-        android:inputType="textPersonName"
-        android:text="Name" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center_horizontal"
-        android:text="Description du groupe :"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/editGroupDesc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center_horizontal"
-        android:inputType="textMultiLine|textPersonName"
-        android:text="Description" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center_horizontal"
-        android:text="Message personnalisé pour le groupe :"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:gravity="center_horizontal"
-        android:text="@string/custom_message_helper"
-        android:textSize="16sp" />
-
-    <EditText
-        android:id="@+id/editCustomMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center_horizontal"
-        android:inputType="textMultiLine|textPersonName"
-        android:text="Message" />
-
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center_horizontal"
-        android:text="Couleur du groupe :"
-        android:textSize="20sp" />
-
-    <View
-        android:id="@+id/colorView"
-        android:layout_width="200dp"
-        android:layout_height="75dp"
-        android:layout_gravity="center_horizontal" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:gravity="center_horizontal"
+            android:text="@string/group_name"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editGroupName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="@string/name"
+            android:inputType="textPersonName"
+            android:text="@string/name"
+            tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:gravity="center_horizontal"
+            android:text="@string/group_description"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editGroupDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="@string/group_description"
+            android:inputType="textMultiLine|textPersonName"
+            android:text="@string/group_desc_editable"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:gravity="center_horizontal"
+            android:text="@string/group_custom_message"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:gravity="center_horizontal"
+            android:text="@string/custom_message_helper"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/editCustomMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="@string/group_custom_message"
+            android:inputType="textMultiLine|textPersonName"
+            android:text="@string/group_custom_message_editable"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:gravity="center_horizontal"
+            android:text="@string/group_color"
+            android:textSize="20sp" />
+
+        <View
+            android:id="@+id/colorView"
+            android:layout_width="200dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center_horizontal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="150dp"
+                android:layout_height="75dp"
+                android:layout_margin="10dp"
+                android:text="@string/cancel" />
+
+            <Button
+                android:id="@+id/validateButton"
+                android:layout_width="150dp"
+                android:layout_height="75dp"
+                android:layout_margin="10dp"
+                android:text="@string/validate" />
+        </LinearLayout>
 
         <Button
-            android:id="@+id/cancelButton "
-            android:layout_width="150dp"
-            android:layout_height="75dp"
-            android:layout_margin="10dp"
-            android:text="Annuler" />
+            android:id="@+id/createWidget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginRight="50dp"
+            android:text="@string/create_widget" />
 
-        <Button
-            android:id="@+id/validateButton"
-            android:layout_width="150dp"
-            android:layout_height="75dp"
-            android:layout_margin="10dp"
-            android:text="Valider" />
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

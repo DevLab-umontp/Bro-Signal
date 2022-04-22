@@ -1,11 +1,31 @@
 <resources>
     <string name="app_name">Bro Signal</string>
     <string name="bro_signal">BRO Signal</string>
-    <string name="broname">Quel est ton nom de BRO ?</string>
-    <string name="ajouter_un_bro">Ajouter un BRO</string>
-    <string name="votre_nom_de_bro">Ton nom de BRO :</string>
-    <string name="brolist">Liste des BROs</string>
-    <string name="send_custom_message">Envoyer un message personnalisé :</string>
-    <string name="custom_message_text">BRO ! Ton BRO <font color='#01C6DB'>$nom</font> a besoin d\'aide !</string>
-    <string name="custom_message_helper">Utilise <font color='#01C6DB'>$nom</font> pour ajouter ton nom de BRO au message ! (ou tape le, comme tu veux !)</string>
+    <string name="bro_name">What is your BRO name ?</string>
+    <string name="add_bro">Add a BRO</string>
+    <string name="your_bro_name">Your BRO name :</string>
+    <string name="bro_list">BROs list</string>
+    <string name="send_custom_message">Send a custom message :</string>
+    <string name="custom_message_text">BRO ! Your BRO <font color='#01C6DB'>$nom</font> needs help !</string>
+    <string name="custom_message_helper">Use <font color='#01C6DB'>$nom</font> to add your BRO name to the message ! (or write it, as you wish !)</string>
+    <string name="create_widget">Create a widget on desktop</string>
+    <string name="group_name">Group\'s name :</string>
+    <string name="group_description">Group\'s description :</string>
+    <string name="name">Name</string>
+    <string name="group_custom_message">Group\'s custom message :</string>
+    <string name="group_color">Group\ color :</string>
+    <string name="validate">OK</string>
+    <string name="group_desc_editable">Description</string>
+    <string name="group_custom_message_editable">Message</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit_group">Edit group</string>
+    <string name="delete_group">Delete group</string>
+    <string name="create_group">Create group</string>
+    <string name="contact_list">Group\'s contact list</string>
+    <string name="spam_authorization">Authorize spam ?</string>
+    <string name="bro_already_saved">BRO already saved</string>
+    <string name="select_bro">Please select a BRO</string>
+    <string name="select_bro_group">Please select a BRO group</string>
+    <string name="no_bro">You don`t have any T_T</string>
+    <string name="unauthorized">Permission denied</string>
 </resources>
