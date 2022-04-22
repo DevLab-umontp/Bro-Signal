@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         viewPager2.setAdapter(adapter);
 
 
-
         new TabLayoutMediator(tabLayout, viewPager2, this::setTabText).attach();
 
         Fragment setting = new Settings();
@@ -90,15 +89,13 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
 
 
-
     }
 
-    private void setTabText(TabLayout.Tab tab, int position){
-        if (position == 0){
+    private void setTabText(TabLayout.Tab tab, int position) {
+        if (position == 0) {
             tab.setText("Paramètres");
-        }
-        else{
-            tab.setText(userGroups.get(position-1).getName());
+        } else {
+            tab.setText(userGroups.get(position - 1).getName());
         }
     }
 
@@ -228,43 +225,53 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            File customName = new File(getApplicationContext().getFilesDir(), "broname.txt");
-            File customMessageFile = new File(getApplicationContext().getFilesDir(), "customMessage.txt");
-            String messageText = "";
-            String name = "";
-            if (customMessageFile.isFile() && customMessageFile.length() != 0L) {
-                try {
-                    BufferedReader messsageReader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
-                    messageText = messsageReader.readLine();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (customName.isFile() && customName.length() != 0L) {
-                try {
-                    BufferedReader nameReader = new BufferedReader(new FileReader(customName.getAbsolutePath()));
-                    name = nameReader.readLine();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-            if (name.length() != 0) {
-                if (messageText.length() == 0) {
-                    messageText = "BRO !! Ton BRO " + name + " a besoin d'aide !";
-                } else {
-                    messageText = messageText.replace("$nom", name);
-                }
-            } else {
-                if (messageText.length() == 0) {
-                    messageText = "BRO !! Ton BRO anonyme a besoin d'aide !";
-                }
-            }
-
             if (!userGroups.isEmpty()) {
                 if (userGroups.size() > selectedGroup) {
+
+                    File customName = new File(getApplicationContext().getFilesDir(), "broname.txt");
+                    String name = "";
+
+                    if (customName.isFile() && customName.length() != 0L) {
+                        try {
+                            BufferedReader nameReader = new BufferedReader(new FileReader(customName.getAbsolutePath()));
+                            name = nameReader.readLine();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    String messageText = "";
+                    if (userGroups.get(selectedGroup).getCustomMessage().equals("")) {
+
+                        File customMessageFile = new File(getApplicationContext().getFilesDir(), "customMessage.txt");
+
+                        if (customMessageFile.isFile() && customMessageFile.length() != 0L) {
+                            try {
+                                BufferedReader messsageReader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
+                                messageText = messsageReader.readLine();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    else {
+                        messageText = userGroups.get(selectedGroup).getCustomMessage();
+                    }
+
+
+                    if (name.length() != 0) {
+                        if (messageText.length() == 0) {
+                            messageText = "BRO !! Ton BRO " + name + " a besoin d'aide !";
+                        } else {
+                            messageText = messageText.replace("$nom", name);
+                        }
+                    } else {
+                        if (messageText.length() == 0) {
+                            messageText = "BRO !! Ton BRO anonyme a besoin d'aide !";
+                        }
+                    }
+
+
                     if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
                         for (User u : userGroups.get(selectedGroup).getUserList()) {
                             smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);

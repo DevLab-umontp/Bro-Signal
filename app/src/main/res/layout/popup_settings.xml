@@ -1,17 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical">
 
 
     <TextView
-        android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="TextView" />
+        android:gravity="center_horizontal"
+        android:text="Nom du groupe :"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/editGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="center_horizontal"
+        android:inputType="textPersonName"
+        android:text="Name" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal"
+        android:text="Description du groupe :"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/editGroupDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="center_horizontal"
+        android:inputType="textMultiLine|textPersonName"
+        android:text="Description" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal"
+        android:text="Message personnalisé pour le groupe :"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center_horizontal"
+        android:text="@string/custom_message_helper"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/editCustomMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="center_horizontal"
+        android:inputType="textMultiLine|textPersonName"
+        android:text="Message" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal"
+        android:text="Couleur du groupe :"
+        android:textSize="20sp" />
+
+    <View
+        android:id="@+id/colorView"
+        android:layout_width="200dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancelButton "
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            android:layout_margin="10dp"
+            android:text="Annuler" />
+
+        <Button
+            android:id="@+id/validateButton"
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            android:layout_margin="10dp"
+            android:text="Valider" />
+    </LinearLayout>
 
 </LinearLayout>

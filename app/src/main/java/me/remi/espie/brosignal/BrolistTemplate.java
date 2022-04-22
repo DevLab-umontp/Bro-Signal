@@ -18,6 +18,8 @@ import androidx.gridlayout.widget.GridLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -31,6 +33,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.Random;
 
@@ -284,23 +288,111 @@ public class BrolistTemplate extends Fragment {
     }
 
     private void changeSettings(View v){
-//        new AmbilWarnaDialog(this.getContext(), userGroup.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
-//            @Override
-//            public void onOk(AmbilWarnaDialog dialog, int color) {
-//                // color is the color selected by the user.
-//            }
-//
-//            @Override
-//            public void onCancel(AmbilWarnaDialog dialog) {
-//                // cancel was selected by the user
-//            }
-//        }).show();
 
-//            PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-//
-//        // show the popup window
-//        // which view you pass in doesn't matter, it is only used for the window tolken
-//        popupWindow.showAtLocation(view.getRootView(), Gravity.CENTER, 0, 0);
+        PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, true);
+
+        TextView editGroupName = popupView.findViewById(R.id.editGroupName);
+        final String[] groupName = {userGroup.getName()};
+        editGroupName.setText(groupName[0]);
+
+        TextView editGroupDesc = popupView.findViewById(R.id.editGroupDesc);
+        final String[] groupDesc = {userGroup.getDescription()};
+        editGroupDesc.setText(groupDesc[0]);
+
+        TextView editGroupCustomMessage = popupView.findViewById(R.id.editCustomMessage);
+        final String[] groupCustomMessage = {userGroup.getCustomMessage()};
+        editGroupCustomMessage.setText(groupCustomMessage[0]);
+
+        View colorView = popupView.findViewById(R.id.colorView);
+        final int[] groupColor = {userGroup.getColor()};
+        colorView.setBackgroundColor(groupColor[0]);
+
+        colorView.setOnClickListener((View view1) ->
+                new AmbilWarnaDialog(this.getContext(), groupColor[0], new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                groupColor[0] = color;
+                colorView.setBackgroundColor(color);
+            }
+
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+                // cancel was selected by the user
+            }
+        }).show());
+
+        editGroupName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                groupName[0] = editable.toString();
+            }
+        });
+
+        editGroupCustomMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                groupCustomMessage[0] = editable.toString();
+            }
+        });
+
+        editGroupDesc.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                groupDesc[0] = editable.toString();
+            }
+        });
+
+        popupView.findViewById(R.id.cancelButton).setOnClickListener((View vi)->popupWindow.dismiss());
+
+        popupView.findViewById(R.id.validateButton).setOnClickListener((View vi)-> {
+            userGroup.setName(groupName[0]);
+            TabLayout tabLayout = view.getRootView().findViewById(R.id.groupName);
+            tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).setText(groupName[0]);
+
+            userGroup.setDescription(groupDesc[0]);
+            broDesc.setText(groupDesc[0]);
+
+            userGroup.setColor(groupColor[0]);
+            broButton.setBackgroundColor(groupColor[0]);
+            broButton.setTextColor(getContrastColor(groupColor[0]));
+
+            userGroup.setCustomMessage(groupCustomMessage[0]);
+
+
+            popupWindow.dismiss();
+        });
+
+        popupWindow.showAtLocation(view.getRootView(), Gravity.CENTER, 0, 0);
     }
 
     private int getRandomColor(){
