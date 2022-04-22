@@ -12,8 +12,6 @@ public class UserGroup {
     private List<User> userList = new ArrayList<>();
     private transient List<UserGroup> parentList = new ArrayList<>();
 
-    public UserGroup() {
-    }
 
     public UserGroup(String name, String description, String customMessage, int color, List<UserGroup> parentList) {
         this.name = name;
@@ -74,9 +72,6 @@ public class UserGroup {
         return userList;
     }
 
-    public void setUserList(List<User> userList) {
-        this.userList = userList;
-    }
 
     public void addUser(User user){
         if (!userList.contains(user)) userList.add(user);

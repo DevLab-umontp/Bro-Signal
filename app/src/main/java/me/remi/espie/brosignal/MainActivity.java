@@ -37,9 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private final Gson gson = new Gson();
     private boolean sendDelay = false;
     private TransitionDrawable transitionSignal;
-    private ArrayList<UserGroup> userGroups = new ArrayList<>();
+    private final ArrayList<UserGroup> userGroups = new ArrayList<>();
     private TabLayout tabLayout;
-    private ViewPagerAdapter adapter;
 
     Settings settings;
 
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.groupName);
         ViewPager2 viewPager2 = findViewById(R.id.groupList);
-        adapter = new ViewPagerAdapter(this);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager2.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager2, this::setTabText).attach();
@@ -267,29 +266,9 @@ public class MainActivity extends AppCompatActivity {
 
                     String name = settings.getBroName();
 
-//                    File customName = new File(getApplicationContext().getFilesDir(), "broname.txt");
-//                    if (customName.isFile() && customName.length() != 0L) {
-//                        try {
-//                            BufferedReader nameReader = new BufferedReader(new FileReader(customName.getAbsolutePath()));
-//                            name = nameReader.readLine();
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-
-                    String messageText = "";
+                    String messageText;
                     if (userGroups.get(selectedGroup).getCustomMessage().equals("")) {
                         messageText = settings.getCustomMessage();
-//                        File customMessageFile = new File(getApplicationContext().getFilesDir(), "customMessage.txt");
-//
-//                        if (customMessageFile.isFile() && customMessageFile.length() != 0L) {
-//                            try {
-//                                BufferedReader messsageReader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
-//                                messageText = messsageReader.readLine();
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
                     } else {
                         messageText = userGroups.get(selectedGroup).getCustomMessage();
                     }

@@ -43,7 +43,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class BrolistFragment extends Fragment {
 
-    private UserGroup userGroup;
+    private final UserGroup userGroup;
 
     private View view;
     private View popupView;
@@ -51,14 +51,6 @@ public class BrolistFragment extends Fragment {
 
     private Button broButton;
     private TextView broDesc;
-
-    public UserGroup getUserGroup() {
-        return userGroup;
-    }
-
-    public void setUserGroup(UserGroup userGroup) {
-        this.userGroup = userGroup;
-    }
 
     public BrolistFragment(UserGroup userGroup) {
         this.userGroup = userGroup;

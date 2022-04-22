@@ -11,17 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class SettingsFragment extends Fragment {
 
-    private Settings settings;
+    private final Settings settings;
 
     public SettingsFragment(Settings settings) {
         this.settings = settings;
@@ -75,67 +68,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-//        setCustomMessage(view);
-//        setBroName(view);
-
-        // Inflate the layout for this fragment
         return view;
     }
-
-//    private void saveCustomMessage(String text) {
-//        try {
-//            FileWriter out = new FileWriter(new File(getView().getContext().getFilesDir(), "customMessage.txt"));
-//            out.write(text);
-//            out.close();
-//        } catch (IOException e) {
-//            Toast.makeText(getContext(), "Sauvegarde du message personnalisé impossible !", Toast.LENGTH_LONG).show();
-//            System.out.println("writing error");
-//        }
-//    }
-//
-//    private void setCustomMessage(View view) {
-//        File customMessageFile = new File(view.getContext().getFilesDir(), "customMessage.txt");
-//        TextView customMessageText = view.findViewById(R.id.customMessage);
-//        if (customMessageFile.isFile()) {
-//            if (customMessageFile.length() != 0L) {
-//                try {
-//                    BufferedReader reader = new BufferedReader(new FileReader(customMessageFile.getAbsolutePath()));
-//                    customMessage = reader.readLine();
-//                    customMessageText.setText(customMessage);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            } else System.out.println("empty file");
-//        } else System.out.println("not a file");
-//    }
-//
-//    private void saveBroName(String text) {
-//        try {
-//            FileWriter out = new FileWriter(new File(getView().getContext().getFilesDir(), "broname.txt"));
-//            out.write(text);
-//            out.close();
-//        } catch (IOException e) {
-//            Toast.makeText(getContext(), "Sauvegarde du nom de bro impossible !", Toast.LENGTH_LONG).show();
-//            System.out.println("writing error");
-//        }
-//
-//    }
-//
-//    private void setBroName(View view) {
-//        File broname = new File(view.getContext().getFilesDir(), "broname.txt");
-//        TextView broNameText = view.findViewById(R.id.broName);
-//        if (broname.isFile()) {
-//            if (broname.length() != 0L) {
-//                try {
-//                    BufferedReader reader = new BufferedReader(new FileReader(broname.getAbsolutePath()));
-//                    broName = reader.readLine();
-//                    broNameText.setText(broName);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            } else System.out.println("empty file");
-//        } else System.out.println("not a file");
-//
-//    }
 
 }

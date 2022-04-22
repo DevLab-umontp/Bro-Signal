@@ -1,9 +1,9 @@
 package me.remi.espie.brosignal;
 
 public class Settings {
-    private boolean spam = false;
-    private String broName ="";
-    private String customMessage ="";
+    private boolean spam;
+    private String broName;
+    private String customMessage;
 
     public boolean isSpam() {
         return spam;
