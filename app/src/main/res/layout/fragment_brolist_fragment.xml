@@ -19,6 +19,7 @@
             android:layout_height="50dp"
             android:clickable="true"
             android:contentDescription="@string/delete_group"
+            android:background="@drawable/rounded_corner"
             android:src="@drawable/ic_baseline_delete_forever_24"
             app:tint="#FF0000"
             tools:ignore="ImageContrastCheck"
@@ -30,6 +31,7 @@
             android:layout_height="50dp"
             android:clickable="true"
             android:contentDescription="@string/edit_group"
+            android:background="@drawable/rounded_corner"
             android:src="@drawable/ic_action_settings"
             android:tint="@color/white"
             tools:ignore="ImageContrastCheck" />
@@ -49,6 +51,7 @@
             android:layout_height="50dp"
             android:clickable="true"
             android:contentDescription="@string/create_group"
+            android:background="@drawable/rounded_corner"
             android:src="@drawable/ic_action_add"
             android:tint="@color/white"
             tools:ignore="ImageContrastCheck" />

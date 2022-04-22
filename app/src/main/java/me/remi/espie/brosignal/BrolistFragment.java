@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
@@ -20,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.Transition;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -282,6 +284,8 @@ public class BrolistFragment extends Fragment {
     private void changeSettings(View v){
 
         PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, true);
+        popupWindow.setAnimationStyle(R.style.popup_window_fade);
+
 
         TextView editGroupName = popupView.findViewById(R.id.editGroupName);
         final String[] groupName = {userGroup.getName()};
@@ -379,7 +383,6 @@ public class BrolistFragment extends Fragment {
             broButton.setTextColor(getContrastColor(groupColor[0]));
 
             userGroup.setCustomMessage(groupCustomMessage[0]);
-
 
             popupWindow.dismiss();
         });
