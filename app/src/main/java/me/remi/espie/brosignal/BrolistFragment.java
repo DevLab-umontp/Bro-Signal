@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
@@ -21,7 +20,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.transition.Transition;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -208,6 +206,7 @@ public class BrolistFragment extends Fragment {
                         while (phoneNumber.moveToNext()) {
                             contactNumber = phoneNumber.getString(phoneNumber.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         }
+                        contactNumber = contactNumber.replaceAll("\\s", "");
 
                         //create user depending of thumbnail presence
                         User user;
@@ -398,7 +397,7 @@ public class BrolistFragment extends Fragment {
 
     private ViewPagerAdapter getAdapter() {
         if (adapter == null) {
-            ViewPager2 viewPager2 = (ViewPager2) view.getRootView().findViewById(R.id.groupList);
+            ViewPager2 viewPager2 = view.getRootView().findViewById(R.id.groupList);
             adapter = (ViewPagerAdapter) viewPager2.getAdapter();
         }
         return adapter;
