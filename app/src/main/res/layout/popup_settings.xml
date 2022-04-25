@@ -169,19 +169,19 @@
                     android:text="@string/validate" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/createWidget"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginStart="50dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginEnd="50dp"
-                android:layout_marginRight="50dp"
-                android:layout_marginBottom="25dp"
-                android:text="@string/create_widget"
-                android:textColor="@color/darkey"
-                app:backgroundTint="@color/grey" />
+<!--            <Button-->
+<!--                android:id="@+id/createWidget"-->
+<!--                style="@style/Widget.AppCompat.Button"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="75dp"-->
+<!--                android:layout_marginStart="50dp"-->
+<!--                android:layout_marginLeft="50dp"-->
+<!--                android:layout_marginEnd="50dp"-->
+<!--                android:layout_marginRight="50dp"-->
+<!--                android:layout_marginBottom="25dp"-->
+<!--                android:text="@string/create_widget"-->
+<!--                android:textColor="@color/darkey"-->
+<!--                app:backgroundTint="@color/grey" />-->
 
         </LinearLayout>
 

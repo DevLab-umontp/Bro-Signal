@@ -11,6 +11,8 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -43,7 +45,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class BrolistFragment extends Fragment {
 
-    private final UserGroup userGroup;
+    private UserGroup userGroup;
 
     private View view;
     private View popupView;
@@ -52,6 +54,9 @@ public class BrolistFragment extends Fragment {
     private Button broButton;
     private TextView broDesc;
     private final Settings settings = Settings.getInstance();
+
+    public BrolistFragment() {
+    }
 
     public BrolistFragment(UserGroup userGroup) {
         this.userGroup = userGroup;
@@ -63,7 +68,7 @@ public class BrolistFragment extends Fragment {
 
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_brolist_fragment, container, false);
-        popupView = inflater.inflate(R.layout.popup_settings, null);
+        popupView = inflater.inflate(R.layout.popup_settings, container);
         broButton = view.findViewById(R.id.addBroButton);
         broDesc = view.findViewById(R.id.broDesc);
         if (userGroup != null) {
@@ -72,20 +77,26 @@ public class BrolistFragment extends Fragment {
             broDesc.setText(userGroup.getDescription());
         }
 
-        broButton.setOnClickListener(this::addBro);
-        view.findViewById(R.id.addGroup).setOnClickListener(this::createGroup);
-        view.findViewById(R.id.groupSettings).setOnClickListener(this::changeSettings);
-        view.findViewById(R.id.deleteGroup).setOnClickListener(this::deleteSelf);
 
-        for (User u : userGroup.getUserList()) {
-            addToDrawer(u, settings.isShowNumbers());
+        if (userGroup != null) {
+            for (User u : userGroup.getUserList()) {
+                addToDrawer(u, settings.isShowNumbers());
+            }
         }
-
         int dp1 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                 view.getResources().getDisplayMetrics());
 
         Log.i("dp1", String.valueOf(dp1));
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        broButton.setOnClickListener(this::addBro);
+        view.findViewById(R.id.addGroup).setOnClickListener(this::createGroup);
+        view.findViewById(R.id.groupSettings).setOnClickListener(this::changeSettings);
+        view.findViewById(R.id.deleteGroup).setOnClickListener(this::deleteSelf);
+        super.onViewCreated(view, savedInstanceState);
     }
 
     private void addToDrawer(User user, boolean showNumber) {
@@ -249,10 +260,10 @@ public class BrolistFragment extends Fragment {
     }
 
     private void requestContactPerm() {
-        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, 5);
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, 1);
     }
 
-    private void pickContact() {
+    public void pickContact() {
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(intent, 2);
     }

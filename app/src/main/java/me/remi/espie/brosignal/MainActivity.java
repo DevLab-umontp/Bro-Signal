@@ -8,13 +8,11 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.ImageView;
@@ -45,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         //deleteFile();
         readUserGroups();
@@ -56,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         ViewPager2 viewPager2 = findViewById(R.id.groupList);
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager2.setAdapter(adapter);
-
 
         new TabLayoutMediator(tabLayout, viewPager2, this::setTabText).attach();
 
@@ -73,9 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout.getTabAt(1).select();
 
-        //writeJSONtoFile();
-
-
         //create bro-sognal button transition
         BitmapDrawable[] drawables = new BitmapDrawable[2];
         drawables[0] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal, null));
@@ -87,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
         //          create listener
         //for buttons
         findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
-
-
     }
 
     private void setTabText(TabLayout.Tab tab, int position) {
@@ -101,9 +92,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        saveData();
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        saveData();
+        super.onPause();
+    }
+
+    private void saveData() {
         writeUserGroups();
         writeUserData();
-        super.onStop();
     }
 
     private void deleteFile() {
@@ -223,11 +224,6 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 5);
     }
 
-    private void pickContact() {
-        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-        startActivityForResult(intent, 2);
-    }
-
     private void launchBroSignal() {
         if (!checkSMSPerm()) requestSMSPerm();
         else {
@@ -308,7 +304,10 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 1 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            pickContact();
+            ViewPager2 viewPager2 = findViewById(R.id.groupList);
+            ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager2.getAdapter();
+            BrolistFragment fragment = (BrolistFragment) adapter.getFragment(tabLayout.getSelectedTabPosition());
+            fragment.pickContact();
         } else if (requestCode == 5 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             sendBroSignal();
         } else {
