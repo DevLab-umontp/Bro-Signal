@@ -2,14 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="7dp"
     android:layout_weight="1"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:text="Bro Signal"
+        android:textColor="@color/darkey"
+        android:textSize="24sp" />
+
     <ImageView
         android:id="@+id/callBros"
         android:layout_width="match_parent"
@@ -24,7 +35,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="horizontal"
-        app:tabMode="scrollable">
+        app:tabIndicatorColor="#01C6DB"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="#01C6DB"
+        app:tabTextColor="@android:color/holo_blue_light">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"

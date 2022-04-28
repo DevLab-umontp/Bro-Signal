@@ -52,8 +52,14 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         return list.get(position);
     }
 
-    public void refreshAll(){
+    public void refreshBrolists(){
         for (int i =1 ; i<list.size(); i++) notifyItemChanged(i);
+    }
+
+    public void refreshAll(){
+        for (int i = 0; i < list.size(); i++) {
+            notifyItemChanged(i);
+        }
     }
 
     @Override

@@ -55,8 +55,8 @@ public class BrolistFragment extends Fragment {
     private TextView broDesc;
     private final Settings settings = Settings.getInstance();
 
-    public BrolistFragment() {
-    }
+//    public BrolistFragment() {
+//    }
 
     public BrolistFragment(UserGroup userGroup) {
         this.userGroup = userGroup;
@@ -141,6 +141,7 @@ public class BrolistFragment extends Fragment {
                 0.1f
         ));
         contactName.setGravity(Gravity.CENTER_HORIZONTAL);
+        contactName.setBackgroundColor(getResources().getColor(R.color.whitey));
         verticalLayout.addView(contactName);
 
         if (showNumber) {
@@ -152,6 +153,7 @@ public class BrolistFragment extends Fragment {
                     0.1f
             ));
             contactNumber.setGravity(Gravity.CENTER_HORIZONTAL);
+            contactNumber.setBackgroundColor(getResources().getColor(R.color.whitey));
             verticalLayout.addView(contactNumber);
         }
         //add delete bin next to contact

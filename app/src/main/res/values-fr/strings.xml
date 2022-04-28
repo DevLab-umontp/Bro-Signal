@@ -31,4 +31,5 @@
     <string name="unauthorized">Permission non accordée</string>
     <string name="new_bro">Mes nouveaux BROs !</string>
     <string name="show_number">Afficher les numéro des contacts ?</string>
+    <string name="contacted">Tous tes BROs ont été contacté !</string>
 </resources>

@@ -30,4 +30,5 @@
     <string name="unauthorized">Permission denied</string>
     <string name="new_bro">My new BROs !</string>
     <string name="show_number">Show contacts number ?</string>
+    <string name="contacted">All your BROs were contacted !</string>
 </resources>

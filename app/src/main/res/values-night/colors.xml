@@ -10,5 +10,8 @@
     <color name="white">#FF000000</color>
     <color name="whitey">#FF202020</color>
     <color name="red">#FF0000</color>
+    <color name="blue">#FF0000FF</color>
     <color name="grey">#FF505050</color>
+    <color name="background">#FF141414</color>
+    <color name="oled">#FF000000</color>
 </resources>

@@ -35,7 +35,7 @@ public class SettingsFragment extends Fragment {
         showNumbers.setChecked(settings.isShowNumbers());
         showNumbers.setOnClickListener((View v)-> {
             settings.setShowNumbers(showNumbers.isChecked());
-            ((ViewPagerAdapter) ((ViewPager2) view.getRootView().findViewById(R.id.groupList)).getAdapter()).refreshAll();
+            ((ViewPagerAdapter) ((ViewPager2) view.getRootView().findViewById(R.id.groupList)).getAdapter()).refreshBrolists();
             });
 
         TextView customMessage = view.findViewById(R.id.customMessage);

@@ -8,21 +8,30 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.renderscript.RenderScript;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -32,12 +41,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private final SmsManager smsManager = SmsManager.getDefault();
-    private FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    private FusedLocationProviderClient fusedLocationClient;
 
     private final Gson gson = new Gson();
     private boolean sendDelay = false;
@@ -85,9 +98,11 @@ public class MainActivity extends AppCompatActivity {
         ImageView callbros = findViewById(R.id.callBros);
         callbros.setImageDrawable(transitionSignal);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         //          create listener
         //for buttons
-        findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
+        findViewById(R.id.callBros).setOnClickListener(view -> launchBroGPSAlert());
     }
 
     private void setTabText(TabLayout.Tab tab, int position) {
@@ -235,11 +250,12 @@ public class MainActivity extends AppCompatActivity {
     private void launchBroSignal() {
         if (!checkSMSPerm()) requestSMSPerm();
         else {
-            sendBroSignal();
+            UserGroup userGroup = checkValidGroup();
+            if (userGroup != null) sendBroSignal(userGroup);
         }
     }
 
-    private void sendBroSignal() {
+    private void sendBroSignal(UserGroup userGroup) {
         if (settings.isSpam() || (!settings.isSpam() && !sendDelay)) {
             if (!sendDelay) {
                 sendDelay = true;
@@ -260,48 +276,33 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }.start();
             }
-            int selectedGroup = tabLayout.getSelectedTabPosition() - 1;
-            if (selectedGroup < 0) {
-                Toast.makeText(this, R.string.select_bro_group, Toast.LENGTH_LONG).show();
-                return;
-            }
 
-            if (!userGroups.isEmpty()) {
-                if (userGroups.size() > selectedGroup) {
+            String name = settings.getBroName();
 
-                    String name = settings.getBroName();
-
-                    String messageText;
-                    if (userGroups.get(selectedGroup).getCustomMessage().equals("")) {
-                        messageText = settings.getCustomMessage();
-                    } else {
-                        messageText = userGroups.get(selectedGroup).getCustomMessage();
-                    }
-
-
-                    if (name.length() != 0) {
-                        if (messageText.length() == 0) {
-                            messageText = "BRO !! Ton BRO " + name + " a besoin d'aide !";
-                        } else {
-                            messageText = messageText.replace("$nom", name);
-                        }
-                    } else {
-                        if (messageText.length() == 0) {
-                            messageText = "BRO !! Ton BRO anonyme a besoin d'aide !";
-                        }
-                    }
-
-
-                    if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
-                        for (User u : userGroups.get(selectedGroup).getUserList()) {
-                            smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
-                        }
-                    } else
-                        Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
-                } else Log.e("sms", "bad group selection");
+            String messageText;
+            if (userGroup.getCustomMessage().equals("")) {
+                messageText = settings.getCustomMessage();
             } else {
-                Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
+                messageText = userGroup.getCustomMessage();
             }
+
+            if (name.length() != 0) {
+                if (messageText.length() == 0) {
+                    messageText = "BRO !! Ton BRO " + name + " a besoin d'aide !";
+                } else {
+                    messageText = messageText.replace("$nom", name);
+                }
+            } else {
+                if (messageText.length() == 0) {
+                    messageText = "BRO !! Ton BRO anonyme a besoin d'aide !";
+                }
+            }
+
+
+            for (User u : userGroup.getUserList()) {
+                smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
+            }
+            Toast.makeText(this, R.string.contacted, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -320,16 +321,115 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
     }
 
-    private void getLocation() {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestLocationPerm();
-            }
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-                // Got last known location. In some rare situations this can be null.
-                if (location != null) {
-                    // Logic to handle location object
+    @SuppressLint("MissingPermission")
+    private void launchBroGPSAlert() {
+        if (!checkLocationPerm()) {
+            requestLocationPerm();
+        } else {
+            UserGroup userGroup = checkValidGroup();
+            if (userGroup != null) {
+                LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    getLocation(userGroup);
+                } else {
+                    LocationRequest locationRequest = LocationRequest.create();
+                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    locationRequest.setExpirationTime(10000);
+                    locationRequest.setFastestInterval(5000);
+
+                    LocationSettingsRequest.Builder locationSettingRequest = new LocationSettingsRequest.Builder();
+                    locationSettingRequest.addLocationRequest(locationRequest);
+                    locationSettingRequest.setAlwaysShow(true);
+                    SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+                    settingsClient.checkLocationSettings(locationSettingRequest.build()).addOnSuccessListener(this, locationSettingsResponse -> getLocation(userGroup))
+                            .addOnFailureListener(this, e -> {
+                                if (e instanceof ResolvableApiException) {
+                                    try {
+                                        ((ResolvableApiException) e).startResolutionForResult(MainActivity.this, 101);
+                                    } catch (IntentSender.SendIntentException sendIntentException) {
+                                        sendIntentException.printStackTrace();
+                                    }
+                                }
+                            });
                 }
-            });
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getLocation(UserGroup userGroup) {
+        fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(this, location -> sendBroAlert(location, userGroup));
+    }
+
+    private void sendBroAlert(Location location, UserGroup userGroup) {
+
+        ImageView callBros = findViewById(R.id.callBros);
+        transitionSignal.startTransition(10);
+        callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
+                .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
+
+        new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(750);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                transitionSignal.reverseTransition(150);
+                sendDelay = false;
+            }
+        }.start();
+
+        String name = settings.getBroName();
+
+        String messageText;
+
+        if (name.length() != 0) {
+            if (location != null) {
+                Date d = new Date(location.getTime());
+                DateFormat format = new SimpleDateFormat("HH'h'mm:ss", Locale.getDefault());
+                String date = format.format(d);
+                messageText = "BRO !! Ton BRO " + name + " a une urgence ! Il était aux là : https://google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "/ à " + date;
+            } else {
+                messageText = "BRO !! Ton BRO " + name + " a une urgence ! Malheuresement, il n'a pas pu t'envoyer sa position !";
+            }
+        } else {
+            if (location != null) {
+                Date d = new Date(location.getTime());
+                DateFormat format = new SimpleDateFormat("HH'h'mm:ss", Locale.getDefault());
+                String date = format.format(d);
+                messageText = "BRO !! Ton BRO a une urgence ! Il était aux là : https://google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + " à " + date;
+            } else {
+                messageText = "BRO !! Ton BRO a une urgence ! Malheuresement, il n'a pas pu t'envoyer sa position !";
+            }
+        }
+
+
+        for (User u : userGroup.getUserList()) {
+            smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
+        }
+        Toast.makeText(this, R.string.contacted, Toast.LENGTH_LONG).show();
+
+    }
+
+    private UserGroup checkValidGroup() {
+        int selectedGroup = tabLayout.getSelectedTabPosition() - 1;
+        if (selectedGroup < 0) {
+            Toast.makeText(this, R.string.select_bro_group, Toast.LENGTH_LONG).show();
+            return null;
+        }
+
+        if (!userGroups.isEmpty()) {
+            if (userGroups.size() > selectedGroup) {
+                if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
+                    return userGroups.get(selectedGroup);
+                } else
+                    Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
+            } else Log.e("sms", "bad group selection");
+        } else {
+            Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
+        }
+        return null;
     }
 
 
@@ -344,9 +444,24 @@ public class MainActivity extends AppCompatActivity {
             BrolistFragment fragment = (BrolistFragment) adapter.getFragment(tabLayout.getSelectedTabPosition());
             fragment.pickContact();
         } else if (requestCode == 5 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            sendBroSignal();
+            UserGroup userGroup = checkValidGroup();
+            if (userGroup!=null) sendBroSignal(userGroup);
+        } else if (requestCode == 7 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            UserGroup userGroup = checkValidGroup();
+            if (userGroup!=null) getLocation(userGroup);
         } else {
             Toast.makeText(this, R.string.unauthorized, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 101) {
+                UserGroup userGroup = checkValidGroup();
+                if (userGroup!=null) getLocation(userGroup);
+            }
         }
     }
 
