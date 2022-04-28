@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="me.remi.espie.brosignal">
+
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
@@ -9,14 +10,26 @@
         android:allowBackup="true"
         android:icon="@drawable/brosignal"
         android:label="@string/app_name"
+        android:launchMode="singleTask"
         android:roundIcon="@drawable/brosignal"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BroSignal"
-        android:launchMode="singleTask">
+        android:theme="@style/Theme.BroSignal">
+        <receiver
+            android:name=".Widget_BroSignal"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget__bro_signal_info" />
+        </receiver>
+
         <activity
-            android:name="me.remi.espie.brosignal.MainActivity"
-            android:windowSoftInputMode="adjustPan"
+            android:name=".MainActivity"
             android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

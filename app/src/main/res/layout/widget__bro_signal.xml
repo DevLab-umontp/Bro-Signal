@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.BroSignal.AppWidget.Container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/Theme.BroSignal.AppWidgetContainer"
+    android:id="@+id/widget">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/title_brosignal"/>
+
+        <ImageView
+            android:id="@+id/widget_callBros"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            android:contentDescription="@string/bro_signal"
+            android:src="@drawable/brosignal" />
+
+        <TextView
+            android:id="@+id/widget_myname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/bro_name"/>
+
+    </LinearLayout>
+
+</LinearLayout>
