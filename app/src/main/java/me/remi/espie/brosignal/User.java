@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
+/**
+ * Classe représentant un contact du téléphone
+ */
 public class User {
     private final String contactID;
     private final String contactName;

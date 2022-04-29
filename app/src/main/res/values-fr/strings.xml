@@ -36,4 +36,10 @@
     <string name="add_widget">Ajouter widget</string>
     <string name="app_widget_description">Un widget pour rapidement envoyer un message à tes BROs !</string>
     <string name="title_brosignal">BRO SIGNAL</string>
+    <string name="delete_group_message">Etes-vous sûr de vouloir supprimer ce groupe ?</string>
+    <string name="delete_group_title">Supprimer le groupe</string>
+    <string name="BRO">BRO !! Ton BRO\ </string>
+    <string name="emergency_location">\ a une urgence ! Il était là : https://google.com/maps?q=</string>
+    <string name="emergency"> a une urgence ! Malheuresement, il n\'a pas pu t\'envoyer sa position !</string>
+    <string name="at">\ à\ </string>
 </resources>

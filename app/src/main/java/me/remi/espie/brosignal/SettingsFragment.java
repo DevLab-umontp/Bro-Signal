@@ -2,6 +2,8 @@ package me.remi.espie.brosignal;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -13,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+/**
+ * Fragment page des paramètres utilisateurs
+ */
 public class SettingsFragment extends Fragment {
 
     private final Settings settings;
@@ -27,6 +32,7 @@ public class SettingsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        //Instantiation des switchs
         SwitchCompat spam = view.findViewById(R.id.spamSwitch);
         spam.setChecked(settings.isSpam());
         spam.setOnClickListener((View v)-> settings.setSpam(spam.isChecked()));
@@ -38,8 +44,11 @@ public class SettingsFragment extends Fragment {
             ((ViewPagerAdapter) ((ViewPager2) view.getRootView().findViewById(R.id.groupList)).getAdapter()).refreshBrolists();
             });
 
+
+        //Instantiation des TextView
         TextView customMessage = view.findViewById(R.id.customMessage);
         customMessage.setText(settings.getCustomMessage());
+        //listener
         customMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -56,8 +65,10 @@ public class SettingsFragment extends Fragment {
                 settings.setCustomMessage(editable.toString());
             }
         });
+
         TextView broName = view.findViewById(R.id.broName);
         broName.setText(settings.getBroName());
+        //listener
         broName.addTextChangedListener(new TextWatcher() {
 
             @Override

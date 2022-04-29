@@ -3,6 +3,9 @@ package me.remi.espie.brosignal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe représentant un groupe de contact, avec un nom de groupe, une description, une couleur et un message personnalisé
+ */
 public class UserGroup {
 
     private String name;

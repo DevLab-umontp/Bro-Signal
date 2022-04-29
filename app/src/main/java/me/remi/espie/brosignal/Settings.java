@@ -1,5 +1,8 @@
 package me.remi.espie.brosignal;
 
+/**
+ * Singleton stockant les paramètres utilisateurs en RAM
+ */
 public class Settings {
     private boolean spam;
     private boolean showNumbers;
