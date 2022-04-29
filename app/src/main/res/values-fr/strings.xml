@@ -32,4 +32,8 @@
     <string name="new_bro">Mes nouveaux BROs !</string>
     <string name="show_number">Afficher les numéro des contacts ?</string>
     <string name="contacted">Tous tes BROs ont été contacté !</string>
+    <string name="appwidget_text">BRO SIGNAL</string>
+    <string name="add_widget">Ajouter widget</string>
+    <string name="app_widget_description">Un widget pour rapidement envoyer un message à tes BROs !</string>
+    <string name="title_brosignal">BRO SIGNAL</string>
 </resources>

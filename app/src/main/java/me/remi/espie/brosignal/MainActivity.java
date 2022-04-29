@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         // intent for widget
         if (getIntent() != null && getIntent().getAction().equals("callbros")){
-            sendBroSignal();
+            sendBroSignal(userGroups.get(0));
         }
         if (getIntent() != null && getIntent().getAction().equals("mybroname")){
 
@@ -464,7 +464,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
