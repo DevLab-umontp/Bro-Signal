@@ -5,36 +5,55 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.telephony.SmsManager;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+
 /**
- * Implementation of App Widget functionality.
+ * Implémentation d'une App Widget
  */
 public class Widget_BroSignal extends AppWidgetProvider {
+
+    public RemoteViews views;
+    public Settings settings;
 
     private void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
+        // Construire les objets RemoteViews
+        views = new RemoteViews(context.getPackageName(), R.layout.widget__bro_signal);
+        views.setTextViewText(R.id.widget_myname, settings.getBroName());
 
-        // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget__bro_signal);
-        //views.setTextViewText(R.id.widget_myname, getMyBroName());
+        // construire le service BroService en PendingIntent
+        Intent intent = new Intent(context ,BroService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
 
-        // OnClick event
-        views.setOnClickPendingIntent(R.id.widget_callBros, getPendingIntentCallBros(context,1));
+        // Au clic sur l'image, pendingIntent est lancée
+        views.setOnClickPendingIntent(R.id.widget_callBros, pendingIntent);
 
-        // Instruct the widget manager to update the widget
+        // Dire au widget manager de mettre à jour le widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // There may be multiple widgets active, so update all of them
+        // Il peut y avoir plusieurs widget actif, on les met tous à jours
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
@@ -42,26 +61,11 @@ public class Widget_BroSignal extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
+        // Entrer une fonctionnalité quand le premier widget est créé
     }
 
     @Override
     public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
-    }
-
-    // recupere la pending intent pour la fonction callBros
-    private PendingIntent getPendingIntentCallBros(Context context, int value){
-
-        Intent intent = new Intent(context ,MainActivity.class);
-        intent.setAction("callbros");
-
-        return PendingIntent.getActivity(context, value, intent, 0);
-    }
-
-    // recupere notre Bro's name
-    private CharSequence getMyBroName(){
-
-        return "gab";
+        // Entrer une fonctionnalité quand le dernier widget est désactivé
     }
 }
