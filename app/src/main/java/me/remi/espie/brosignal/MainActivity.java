@@ -18,7 +18,6 @@ import android.graphics.drawable.TransitionDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.renderscript.RenderScript;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.ImageView;
@@ -29,10 +28,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
@@ -54,7 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final Gson gson = new Gson();
     private boolean sendDelay = false;
+    private boolean emergency = false;
     private TransitionDrawable transitionSignal;
+    private TransitionDrawable transitionSignalEmergency;
     private final ArrayList<UserGroup> userGroups = new ArrayList<>();
     private TabLayout tabLayout;
 
@@ -95,6 +93,12 @@ public class MainActivity extends AppCompatActivity {
         drawables[0] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal, null));
         drawables[1] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal_color, null));
         transitionSignal = new TransitionDrawable(drawables);
+
+        BitmapDrawable[] drawablesEmergency = new BitmapDrawable[2];
+        drawablesEmergency[0] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal, null));
+        drawablesEmergency[1] = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.brosignal_emergency_color, null));
+        transitionSignalEmergency = new TransitionDrawable(drawablesEmergency);
+
         ImageView callbros = findViewById(R.id.callBros);
         callbros.setImageDrawable(transitionSignal);
 
@@ -102,7 +106,9 @@ public class MainActivity extends AppCompatActivity {
 
         //          create listener
         //for buttons
-        findViewById(R.id.callBros).setOnClickListener(view -> launchBroGPSAlert());
+        findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
+        findViewById(R.id.panicButton1).setOnClickListener(view -> launchBroGPSAlert());
+        findViewById(R.id.panicButton2).setOnClickListener(view -> launchBroGPSAlert());
     }
 
     private void setTabText(TabLayout.Tab tab, int position) {
@@ -256,13 +262,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendBroSignal(UserGroup userGroup) {
+        ImageView callBros = findViewById(R.id.callBros);
+        if (emergency){
+            emergency=false;
+            callbrosAnimation(callBros);
+        }
         if (settings.isSpam() || (!settings.isSpam() && !sendDelay)) {
             if (!sendDelay) {
                 sendDelay = true;
-                ImageView callBros = findViewById(R.id.callBros);
-                transitionSignal.startTransition(10);
-                callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
-                        .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
+                callBros.setImageDrawable(transitionSignal);
+                transitionSignal.startTransition(50);
+                callbrosAnimation(callBros);
 
                 new Thread() {
                     public void run() {
@@ -302,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             for (User u : userGroup.getUserList()) {
                 smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
             }
-            Toast.makeText(this, R.string.contacted, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.contacted, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -323,37 +333,69 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     private void launchBroGPSAlert() {
-        if (!checkLocationPerm()) {
-            requestLocationPerm();
-        } else {
-            UserGroup userGroup = checkValidGroup();
-            if (userGroup != null) {
-                LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    getLocation(userGroup);
-                } else {
-                    LocationRequest locationRequest = LocationRequest.create();
-                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    locationRequest.setExpirationTime(10000);
-                    locationRequest.setFastestInterval(5000);
+        ImageView callBros = this.findViewById(R.id.callBros);
+        if (!emergency) {
+            if (!checkLocationPerm()) {
+                requestLocationPerm();
+            } else {
+                UserGroup userGroup = checkValidGroup();
+                if (userGroup != null) {
 
-                    LocationSettingsRequest.Builder locationSettingRequest = new LocationSettingsRequest.Builder();
-                    locationSettingRequest.addLocationRequest(locationRequest);
-                    locationSettingRequest.setAlwaysShow(true);
-                    SettingsClient settingsClient = LocationServices.getSettingsClient(this);
-                    settingsClient.checkLocationSettings(locationSettingRequest.build()).addOnSuccessListener(this, locationSettingsResponse -> getLocation(userGroup))
-                            .addOnFailureListener(this, e -> {
-                                if (e instanceof ResolvableApiException) {
-                                    try {
-                                        ((ResolvableApiException) e).startResolutionForResult(MainActivity.this, 101);
-                                    } catch (IntentSender.SendIntentException sendIntentException) {
-                                        sendIntentException.printStackTrace();
-                                    }
+                    emergency = true;
+                    callBros.setImageDrawable(transitionSignalEmergency);
+                    transitionSignalEmergency.startTransition(250);
+
+                    new Thread() {
+                        public void run() {
+                            boolean layer = true;
+                            while (emergency) {
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
-                            });
+                                layer = !layer;
+                                transitionSignalEmergency.reverseTransition(250);
+                            }
+                            if (layer) transitionSignalEmergency.reverseTransition(250);
+                        }
+                    }.start();
+
+
+                    LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        getLocation(userGroup);
+                    } else {
+                        LocationRequest locationRequest = LocationRequest.create();
+                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                        locationRequest.setExpirationTime(10000);
+                        locationRequest.setFastestInterval(5000);
+
+                        LocationSettingsRequest.Builder locationSettingRequest = new LocationSettingsRequest.Builder();
+                        locationSettingRequest.addLocationRequest(locationRequest);
+                        locationSettingRequest.setAlwaysShow(true);
+                        SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+                        settingsClient.checkLocationSettings(locationSettingRequest.build()).addOnSuccessListener(this, locationSettingsResponse -> getLocation(userGroup))
+                                .addOnFailureListener(this, e -> {
+                                    if (e instanceof ResolvableApiException) {
+                                        try {
+                                            ((ResolvableApiException) e).startResolutionForResult(MainActivity.this, 101);
+                                        } catch (IntentSender.SendIntentException sendIntentException) {
+                                            sendIntentException.printStackTrace();
+                                        }
+                                    }
+                                });
+                    }
                 }
             }
+        } else {
+            emergency = false;
         }
+    }
+
+    private void callbrosAnimation(ImageView callBros){
+        callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
+                .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
     }
 
     @SuppressLint("MissingPermission")
@@ -362,23 +404,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendBroAlert(Location location, UserGroup userGroup) {
-
-        ImageView callBros = findViewById(R.id.callBros);
-        transitionSignal.startTransition(10);
-        callBros.animate().setDuration(250).scaleXBy(-0.1f).scaleYBy(-0.1f)
-                .withEndAction(() -> callBros.animate().setDuration(250).scaleXBy(0.1f).scaleYBy(0.1f));
-
-        new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(750);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                transitionSignal.reverseTransition(150);
-                sendDelay = false;
-            }
-        }.start();
 
         String name = settings.getBroName();
 
@@ -408,14 +433,14 @@ public class MainActivity extends AppCompatActivity {
         for (User u : userGroup.getUserList()) {
             smsManager.sendTextMessage(u.getContactNumber(), null, messageText, null, null);
         }
-        Toast.makeText(this, R.string.contacted, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.contacted, Toast.LENGTH_SHORT).show();
 
     }
 
     private UserGroup checkValidGroup() {
         int selectedGroup = tabLayout.getSelectedTabPosition() - 1;
         if (selectedGroup < 0) {
-            Toast.makeText(this, R.string.select_bro_group, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.select_bro_group, Toast.LENGTH_SHORT).show();
             return null;
         }
 
@@ -424,10 +449,10 @@ public class MainActivity extends AppCompatActivity {
                 if (!userGroups.get(selectedGroup).getUserList().isEmpty()) {
                     return userGroups.get(selectedGroup);
                 } else
-                    Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.no_bro, Toast.LENGTH_SHORT).show();
             } else Log.e("sms", "bad group selection");
         } else {
-            Toast.makeText(this, R.string.no_bro, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_bro, Toast.LENGTH_SHORT).show();
         }
         return null;
     }
@@ -445,12 +470,12 @@ public class MainActivity extends AppCompatActivity {
             fragment.pickContact();
         } else if (requestCode == 5 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             UserGroup userGroup = checkValidGroup();
-            if (userGroup!=null) sendBroSignal(userGroup);
+            if (userGroup != null) sendBroSignal(userGroup);
         } else if (requestCode == 7 && grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             UserGroup userGroup = checkValidGroup();
-            if (userGroup!=null) getLocation(userGroup);
+            if (userGroup != null) getLocation(userGroup);
         } else {
-            Toast.makeText(this, R.string.unauthorized, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.unauthorized, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -460,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == 101) {
                 UserGroup userGroup = checkValidGroup();
-                if (userGroup!=null) getLocation(userGroup);
+                if (userGroup != null) getLocation(userGroup);
             }
         }
     }

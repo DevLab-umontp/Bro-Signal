@@ -12,14 +12,39 @@
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center_horizontal"
-        android:text="Bro Signal"
-        android:textColor="@color/darkey"
-        android:textSize="24sp" />
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/panicButton1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            app:srcCompat="@drawable/panic" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_horizontal"
+            android:text="Bro Signal"
+            android:textColor="@color/darkey"
+            android:textSize="24sp" />
+
+        <ImageView
+            android:id="@+id/panicButton2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:rotationY="180"
+            app:srcCompat="@drawable/panic" />
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/callBros"

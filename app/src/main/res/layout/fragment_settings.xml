@@ -65,24 +65,30 @@
         tools:ignore="TextContrastCheck"
         android:autofillHints="" />
 
-    <CheckBox
-        android:id="@+id/numberCheckBox"
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/numberSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:checked="false"
         android:gravity="center|center_vertical"
+        android:minHeight="48dp"
         android:text="@string/show_number"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    <CheckBox
-        android:id="@+id/spamCheckBox"
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/spamSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:checked="false"
         android:gravity="center|center_vertical"
+        android:minHeight="48dp"
         android:text="@string/spam_authorization"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
+
 
 </LinearLayout>

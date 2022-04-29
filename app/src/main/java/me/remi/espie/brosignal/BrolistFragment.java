@@ -198,7 +198,7 @@ public class BrolistFragment extends Fragment {
                     if (!userGroup.getUserList().isEmpty()) {
                         for (User u : userGroup.getUserList()) {
                             if (u.getContactID().equals(contactID)) {
-                                Toast.makeText(getActivity(), R.string.bro_already_saved, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(), R.string.bro_already_saved, Toast.LENGTH_SHORT).show();
                                 return;
                             }
                         }
@@ -250,7 +250,7 @@ public class BrolistFragment extends Fragment {
 
             }
         } else {
-            Toast.makeText(getActivity(), R.string.select_bro, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.select_bro, Toast.LENGTH_SHORT).show();
         }
     }
 
