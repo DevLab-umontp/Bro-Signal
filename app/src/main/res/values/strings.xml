@@ -31,4 +31,8 @@
     <string name="new_bro">My new BROs !</string>
     <string name="show_number">Show contacts number ?</string>
     <string name="contacted">All your BROs were contacted !</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="title_brosignal">BRO SIGNAL</string>
 </resources>

@@ -107,6 +107,14 @@ public class MainActivity extends AppCompatActivity {
         //          create listener
         //for buttons
         findViewById(R.id.callBros).setOnClickListener(view -> launchBroSignal());
+
+        // intent for widget
+        if (getIntent() != null && getIntent().getAction().equals("callbros")){
+            sendBroSignal();
+        }
+        if (getIntent() != null && getIntent().getAction().equals("mybroname")){
+
+        }
         findViewById(R.id.panicButton1).setOnClickListener(view -> launchBroGPSAlert());
         findViewById(R.id.panicButton2).setOnClickListener(view -> launchBroGPSAlert());
     }

@@ -9,9 +9,13 @@
     <color name="darkey">#FF121212</color>
     <color name="white">#FFFFFFFF</color>
     <color name="whitey">#FFF0F0F0</color>
-	<color name="red">#FF0000</color>
+    <color name="red">#FF0000</color>
     <color name="blue">#FF0000FF</color>
     <color name="grey">#FFDCDCDC</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
     <color name="background">#FFFFFFFF</color>
     <color name="oled">#FF000000</color>
 </resources>
