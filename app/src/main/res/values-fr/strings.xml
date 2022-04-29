@@ -31,4 +31,8 @@
     <string name="unauthorized">Permission non accordée</string>
     <string name="new_bro">Mes nouveaux BROs !</string>
     <string name="show_number">Afficher les numéro des contacts ?</string>
+    <string name="appwidget_text">EXEMPLE</string>
+    <string name="add_widget">Ajouter un widjet</string>
+    <string name="app_widget_description">Ceci est une description d app widget</string>
+    <string name="title_brosignal">BRO SIGNAL</string>
 </resources>
