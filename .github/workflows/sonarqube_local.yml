@@ -1,14 +1,13 @@
+name: SonarQube local
+
 on:
-  # Trigger analysis when pushing in master or pull requests, and when creating
-  # a pull request. 
   push:
     branches:
       - master
   pull_request:
       types: [opened, synchronize, reopened]
-     workflow_dispatch:
+  workflow_dispatch:
 
-name: SonarQube Scan
 jobs:
   sonarqube:
     name: SonarQube Trigger
